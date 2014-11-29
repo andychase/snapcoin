@@ -1,0 +1,9 @@
+out/*
+target/*
+project/project/*
+project/target/*
+.idea/*
+*.iml
+.hg/*
+.hgignore
+.DS_Store
