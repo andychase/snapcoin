@@ -1,0 +1,12 @@
+# Site settings
+title: SnapMoney
+email: photomoney@asperous.us
+description: >
+  Bringing Bitcoin to feature phones, one snap at a time.
+baseurl: ""
+url: ""
+twitter_username: photomoney
+github_username:  photomoney
+
+# Build settings
+markdown: kramdown

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>SnapMoney</title>
+    <description>Bringing Bitcoin to feature phones one snap at a time.
+</description>
+    <link>/</link>
+    <atom:link href="/feed.xml" rel="self" type="application/rss+xml"/>
+    <pubDate>Sat, 29 Nov 2014 03:04:29 -0800</pubDate>
+    <lastBuildDate>Sat, 29 Nov 2014 03:04:29 -0800</lastBuildDate>
+    <generator>Jekyll v2.5.2</generator>
+    
+      <item>
+        <title>About</title>
+        <description>&lt;p&gt;&lt;img src=&quot;/resources/frame.png&quot; alt=&quot;Big Monies&quot; /&gt;&lt;/p&gt;
+</description>
+        <pubDate>Fri, 28 Nov 2014 16:08:42 -0800</pubDate>
+        <link>/jekyll/update/2014/11/28/what-is-photomoney.html</link>
+        <guid isPermaLink="true">/jekyll/update/2014/11/28/what-is-photomoney.html</guid>
+        
+        
+        <category>jekyll</category>
+        
+        <category>update</category>
+        
+      </item>
+    
+  </channel>
+</rss>
