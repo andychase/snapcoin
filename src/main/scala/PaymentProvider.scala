@@ -1,15 +1,8 @@
-class BitcoinTokenError(msg:String) extends Throwable(msg) {}
-class BitcoinPasswordError(msg:String) extends Throwable(msg) {}
-class BitcoinConnectionError(msg:String) extends Throwable(msg) {}
 
 trait PaymentProvider {
-    def sendPayment(address:String, amount:Float, reply:(String=>Unit))
+    def sendPayment(walletID:String, password:String, address:String, amount:Long)
+
     def validateCredentials()
 
-    def tokenError(msg:String = "") {
-        throw new BitcoinTokenError(msg)
-    }
-    def passwordError(msg:String = "") {
-        throw new BitcoinPasswordError(msg)
-    }
+    def createWallet(secretKey:String):(String, String)
 }

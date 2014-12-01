@@ -1,3 +1,5 @@
+import java.util.Properties
+
 import com.sun.mail.imap.IMAPFolder
 import com.sun.mail.imap.protocol.IMAPProtocol
 import javax.mail._
@@ -8,14 +10,16 @@ import javax.mail._
  * as they come in.
  */
 class ImapListener(
-                     val server: String,
-                     val username: String,
-                     val password: String,
-                     val expunge: Boolean = false,
-                     val imapIdleSessionLength: Long = 300000,
-                     val callbacks: List[(Message) => Unit]) {
+                      val server: String,
+                      val username: String,
+                      val password: String,
+                      val expunge: Boolean = false,
+                      val imapIdleSessionLength: Long = 300000,
+                      val callbacks: List[(Message) => Unit]) {
 
-    val store = Session.getDefaultInstance(System.getProperties, null).getStore("imaps")
+    val props = new Properties()
+    val session = Session.getInstance(props)
+    val store = session.getStore("imaps")
     store.connect(server, username, password)
 
     val folder: IMAPFolder = store.getFolder("inbox").asInstanceOf[IMAPFolder]
@@ -42,17 +46,22 @@ class ImapListener(
         }
     }
 
-    private class InterruptRunnable(private val folder: IMAPFolder) extends Runnable{
+    private class InterruptRunnable(private val folder: IMAPFolder) extends Runnable {
         def run() {
             val thread: Thread = new Thread(new KeepAliveRunnable(folder), "IdleConnectionKeepAlive")
             thread.start()
             while (!Thread.interrupted) {
+                val messages = folder.getMessages
+                for (message <- messages;
+                     callback <- callbacks) {
+                    callback(message)
+                }
+
+                if (messages.length > 0 && expunge) {
+                    folder.expunge(messages)
+                }
                 folder.idle(true)
                 print("~")
-                val messages = folder.getMessages
-                messages.foreach(message => callbacks.foreach(callback => callback(message)))
-                if (messages.length > 0 && expunge)
-                    folder.expunge(messages)
             }
 
             if (thread.isAlive)
@@ -60,4 +69,5 @@ class ImapListener(
         }
 
     }
+
 }

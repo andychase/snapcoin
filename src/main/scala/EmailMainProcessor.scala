@@ -1,3 +1,5 @@
+import javax.mail.Message.RecipientType
+
 import com.google.zxing.common.HybridBinarizer
 import com.google.zxing._
 import com.sun.mail.util.BASE64DecoderStream
@@ -6,14 +8,18 @@ import java.security.MessageDigest
 import java.util
 import java.util.Collections
 import javax.imageio.ImageIO
-import javax.mail.{Address, Message, Header, BodyPart}
-import javax.mail.internet.MimeMultipart
+import javax.mail._
+import javax.mail.internet.{InternetAddress, MimeMultipart}
+import info.blockchain.api.APIException
+
 import scala.collection.mutable
 import scala.Predef._
 import scala.util.{Failure, Success, Try}
+import org.bitcoinj.utils.MonetaryFormat
 
 object EmailMainProcessor {
     val digest = MessageDigest.getInstance("SHA-256")
+    val monetaryFormatParser = new MonetaryFormat()
 
     def qrCodeImageDecode(decoderStream: BASE64DecoderStream): String = {
         // Build hints via Java Collection
@@ -65,74 +71,115 @@ object EmailMainProcessor {
         }).toMap
 
 
-    def buildReplier(fromAddresses: Array[Address], replierMaybe: Option[SmtpReplier]) = {
+    def buildReplier(fromAddresses: Array[Address], extension: String, replierMaybe: Option[SmtpReplier]) = {
         message: String => {
             for (from <- fromAddresses;
                  replier <- replierMaybe)
-                replier.sendMail(from, message)
+                replier.sendMail(from, extension, message)
+        }
+    }
+
+    def parseFrom(from: String) = {
+        val plusIndex = from.indexOf('+') + 1
+        val atIndex = from.indexOf('@')
+        if (atIndex == -1 || plusIndex == -1 || plusIndex > atIndex) {
+            ""
+        } else {
+            from.substring(plusIndex, atIndex)
+        }
+    }
+
+    type sendFunctionType = (String, String, Long) => Unit
+
+    def getSecretIdOrRegister(address: String, photoMoneyServer: PhotoMoneyServer): (String, Option[String]) = {
+        val secretId = parseFrom(address)
+        val registered = photoMoneyServer.checkRegistered(secretId)
+        if (registered) {
+            (secretId, None)
+        } else {
+            val (secretId, bitcoinAddress) = photoMoneyServer.register()
+            (secretId, Some(bitcoinAddress))
         }
     }
 
 
-    def processMessage(msg: Message, receivedEmails: mutable.HashSet[Array[Byte]], paymentProviderMaybe: Option[PaymentProvider], replierMaybe: Option[SmtpReplier]) {
-        val reply = buildReplier(msg.getFrom, replierMaybe)
-        val paymentProvider = paymentProviderMaybe.get
+    def processMessage(msg: Message, receivedEmails: mutable.HashSet[Array[Byte]], photoMoneyServer: PhotoMoneyServer, replierMaybe: Option[SmtpReplier]) {
+        try {
+            val emailAddress = new InternetAddress(msg.getRecipients(RecipientType.TO).head.toString).getAddress
+            val (secretId, bitcoinAddress) = getSecretIdOrRegister(emailAddress, photoMoneyServer)
+            val reply = { m: String => println(m)} //buildReplier(msg.getFrom, secretId, replierMaybe)
+            for (address <- bitcoinAddress) {
+                reply(address)
+                // Should stop processing now
+                return
+            }
 
-        msg.getContent match {
-            // If email message has an attachment
-            case multipart: MimeMultipart =>
-                for (part <- new emailMultiPartIterator(multipart)) {
-                    part.getContent match {
-                        // Part of email that is a binary attachment
-                        case decoderStream: BASE64DecoderStream =>
-                            // Check a hash of headers to avoid repeat attacks
-                            val messageHash = digest.digest(headersToBytes(msg.getAllHeaders))
-                            if (receivedEmails contains messageHash) {
-                                // Message was already received, don't process
-                                return
-                            } else {
-                                receivedEmails += messageHash
-                            }
 
-                            // Attempt to decode it
-                            qrCodeImageDecode(decoderStream).split(":", 2).toList match {
-                                case "Not Found" :: Nil =>
-                                    // No qr code was able to be found in attachment
-                                    reply("I wasn't able to decode a qr code in that image." ++
-                                          "Try getting a cleaner picture of it. " ++
-                                          "(Be sure to fully capture the white edges around the code.)")
-                                case "bitcoin" :: addressFull :: Nil =>
-                                    addressFull.split("\\?", 2).toList match {
-                                        // No amount
-                                        case address :: Nil =>
-                                            println("The bitcoin qr code didn't include an amount to send.")
-                                        // Address with amount
-                                        case address :: uri :: Nil =>
-                                            parseUri(uri).get("amount") match {
-                                                case Some(amount: String) =>
-                                                    Try(amount.toFloat) match {
-                                                        case Success(amountFloat) =>
-                                                            paymentProvider.sendPayment(new String(address), amountFloat, reply(_:String))
-                                                        case Failure(_) =>
-                                                            reply("I wasn't able to parse the amount: %s.".format(amount))
-                                                    }
+            var gotImage = false
+            msg.getContent match {
+                // If email message has an attachment
+                case multipart: MimeMultipart =>
+                    for (part <- new emailMultiPartIterator(multipart)) {
+                        part.getContent match {
+                            // Part of email that is a binary attachment
+                            case decoderStream: BASE64DecoderStream =>
+                                gotImage = true
+                                // Check a hash of headers to avoid repeat attacks
+                                val messageHash = digest.digest(headersToBytes(msg.getAllHeaders))
+                                if (receivedEmails contains messageHash) {
+                                    // Message was already received, don't process
+                                    reply("You've sent me that image the past. For security I need a new image each time.")
+                                    return
+                                } else {
+                                    receivedEmails += messageHash
+                                }
 
-                                                case None =>
-                                                    println("The bitcoin qr code didn't include an amount to send.")
-                                            }
-                                        case _ => // <- Not possible
-                                    }
-                                // Qr code was found, but didn't contain a bitcoin:1234 type address
-                                case _ =>
-                                    reply("I found a qr Code, but it wasn't in the correct format.")
-                            }
-                        // Text Part of email with attachment
-                        case _ =>
+                                // Attempt to decode it
+                                qrCodeImageDecode(decoderStream).split(":", 2).toList match {
+                                    case "Not Found" :: Nil =>
+                                        // No qr code was able to be found in attachment
+                                        reply("I wasn't able to decode a qr code in that image." ++
+                                            "Try getting a cleaner picture of it. " ++
+                                            "(Be sure to fully capture the white edges around the code.)")
+                                    case "bitcoin" :: addressFull :: Nil =>
+                                        addressFull.split("\\?", 2).toList match {
+                                            // No amount
+                                            case address :: Nil =>
+                                                println("The bitcoin qr code didn't include an amount to send.")
+                                            // Address with amount
+                                            case address :: uri :: Nil =>
+                                                parseUri(uri).get("amount") match {
+                                                    case Some(amount: String) =>
+                                                        Try(monetaryFormatParser.parse(amount).getValue) match {
+                                                            case Success(amountFloat) =>
+                                                                photoMoneyServer.sendMoney(secretId, new String(address), amountFloat)
+                                                            case Failure(_) =>
+                                                                reply("I wasn't able to parse the amount: %s.".format(amount))
+                                                        }
+
+                                                    case None =>
+                                                        reply("The bitcoin qr code didn't include an amount to send.")
+                                                }
+                                            case _ => // <- Not possible
+                                        }
+                                    // Qr code was found, but didn't contain a bitcoin:1234 type address
+                                    case _ =>
+                                        reply("I found a qr Code, but it wasn't in the correct format.")
+                                }
+                            // Text Part of email with attachment
+                            case _ =>
+                        }
                     }
-                }
-            // No attachment in email message
-            case _ =>
+                // No attachment in email message
+                case _ =>
+                    reply("I couldn't find a picture attachment in that message.")
+            }
+            if (!gotImage) {
                 reply("I couldn't find a picture attachment in that message.")
+            }
+        } catch {
+            case _: MessageRemovedException =>
+            case e: APIException => println(e.getMessage)
         }
     }
 }

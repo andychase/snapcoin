@@ -1,6 +1,8 @@
 import javax.mail.Address
 import javax.mail.internet.InternetAddress
 
+import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
+
 /**
  * Some carriers have different mms addresses
  * from sms address. Match and convert these carriers
@@ -23,4 +25,10 @@ object PhoneTranslation {
         case "mms.uscc.net " => "email.uscc.net"
         case _ => ending
     }
+
+    def GetEmailFromPhone(phone: PhoneNumber, carrier: String): String =
+        phone.getNationalNumber.toString + "@" + carrier match {
+            case "verizon" => "vtext.com"
+            case _ => throw new Exception("No Matching phone")
+        }
 }
