@@ -6,4 +6,4 @@ categories: jekyll update
 ---
 
 
-![Big Monies](/resources/frame.png)
+![Big Monies](/resources/frame.jpg)
