@@ -5,7 +5,7 @@ title: "Snapcoin: Bitcoin for feature phones. Take pictures and send to spend."
 
 ## Bitcoin: Smartphone not required
 
-Snapcoin is a service that lets you spend Bitcoin using your feature phone's picture messaging functionality.
+Snapcoin is a service that lets you spend Bitcoin using your phone's picture messaging functionality.
 {: .moreinfo}
 
 
