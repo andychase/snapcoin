@@ -1,0 +1,21 @@
+.nav {
+  display: inline-block;
+  vertical-align: middle;
+  height: 24pt;
+  margin-left: 10px;
+}
+
+.nav ul {
+  float: left;
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
+
+.nav ul li {
+  margin-left: 20px;
+}
+
+.current {
+  border-bottom: 1px solid $brand-color;
+}

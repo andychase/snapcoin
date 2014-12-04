@@ -99,8 +99,8 @@ a {
     }
 
     &:hover {
-        color: $text-color;
-        text-decoration: underline;
+        text-decoration: none;
+        border-bottom: 1px $brand-color dashed;
     }
 }
 
