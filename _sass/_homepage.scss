@@ -1,0 +1,37 @@
+.phones {
+  display: inline-block;
+  width: 170px;
+  vertical-align: top;
+  margin-left: 55px;
+}
+
+.phones span {
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.phones i {
+  margin-right: 6px;
+  margin-top: 6px;
+}
+
+.moreinfo {
+  text-align: center;
+}
+
+h2 {
+  text-align: center;
+}
+
+.signupform {
+  margin: 0 auto;
+  width: 200px;
+  text-align: center;
+  padding: 10px 0;
+  border: 1px solid grey;
+  border-radius: 10px;
+}
+
+.signupform input, {
+  height: 24px;
+}
