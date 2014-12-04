@@ -8,7 +8,7 @@ title: "Snapcoin: Bitcoin for feature-phones. Take pictures and send to spend."
 
 ## Bitcoin: Smartphone not required
 
-Snapcoin is a service that lets you spend Bitcoin using your phones mms functionality.
+Snapcoin is a service that lets you spend Bitcoin using your feature phone's mms functionality.
 {: .moreinfo}
 
 
@@ -21,7 +21,7 @@ Snapcoin is a service that lets you spend Bitcoin using your phones mms function
 
 ## ▼▼ Be informed when the service starts! ▼▼
 
-<form action="http://register.snapcoin.net:8085/" method="POST" class="signupform">
+<form action="https://whispering-ocean-2717.herokuapp.com/" method="POST" class="signupform">
 <label>Email:<br/><input type="text" placeholder="email@example.com" name="email" /></label><br>
 <!--<select>
   <option>Verizon</option>
