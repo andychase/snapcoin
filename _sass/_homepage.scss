@@ -33,7 +33,7 @@ h2 {
   width: 200px;
   text-align: center;
   padding: 10px 0;
-  border: 1px solid grey;
+  border: 1px solid $brand-color;;
   border-radius: 14px;
 }
 
@@ -41,6 +41,18 @@ h2 {
   height: 24px;
 }
 
-.home_text {
+#home_text {
   font-size: 18pt;
+  background-color: $brand-color;
+  color: white;
+  display: inline-block;
+}
+
+#home_text_link {
+  color: white;
+  font-weight: 600;
+  padding: 5px;
+  &:visited {
+    color: white;
+  }
 }
