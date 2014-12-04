@@ -63,10 +63,10 @@ h1, h2, h3, h4, h5, h6 {
  * Links
  */
 a {
-  color: #2a7ae2;
+  color: #ff00e2;
   text-decoration: none; }
   a:visited {
-    color: #1756a9; }
+    color: #ff00e2; }
   a:hover {
     color: #111111;
     text-decoration: underline; }
@@ -315,7 +315,8 @@ pre {
   margin-left: 55px; }
 
 .phones img {
-  border-radius: 14px; }
+  border-radius: 14px;
+  max-width: 162px; }
 
 .phones span {
   margin-left: 10px;
@@ -341,3 +342,6 @@ h2 {
 
 .signupform input {
   height: 24px; }
+
+.home_text {
+  font-size: 18pt; }
