@@ -20,13 +20,15 @@ If for some reason we do not launch we will not send an email and simply destroy
 
 ## Website Tracking
 
-Our policy on privacy is that we actively try and destroy data whenever we can, personally identifying or not.
-
 When you visit our website your ip address and other information will be stored in log files. We use these
-services which may track more than we do:
+services which may track you:
 
 * Cloudflare
 * Github-pages
+* Google Analytics
+
+We use Google Analytics because we are interested in what kind of users are visiting our site and
+see what pages they are interested in. Google Analytics doesn't track registrations.
 
 
 ## Service Tracking
