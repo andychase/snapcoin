@@ -1,3 +1,5 @@
+package PhotoMoney
+
 import javax.mail.Address
 import javax.mail.internet.InternetAddress
 
@@ -9,7 +11,7 @@ import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
  * so if you send a picture message to the service
  * you get a plain text message response.
  */
-object PhoneTranslation {
+object PhoneUtilities {
 
     def CheckAndTranslate(address: Address): InternetAddress =
         new InternetAddress(CheckAndTranslate(address.toString.split("@").toList))
@@ -31,4 +33,14 @@ object PhoneTranslation {
             case "verizon" => "vtext.com"
             case _ => throw new Exception("No Matching phone")
         }
+
+    def parseFrom(from: String) = {
+        val plusIndex = from.indexOf('+') + 1
+        val atIndex = from.indexOf('@')
+        if (atIndex == -1 || plusIndex == -1 || plusIndex > atIndex) {
+            ""
+        } else {
+            from.substring(plusIndex, atIndex)
+        }
+    }
 }

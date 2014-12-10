@@ -1,3 +1,7 @@
+
+
+packageArchetype.java_application
+
 name := "photomoney"
 
 resolvers +=
@@ -5,17 +9,24 @@ resolvers +=
 
 libraryDependencies ++= Seq(
     "commons-lang" % "commons-lang" % "2.6",
-    //"org.apache.httpcomponents" % "httpasyncclient" % "4.0.2",
-    //"org.apache.httpcomponents" % "httpclient" % "4.3.6",
-    //"org.apache.httpcomponents" % "httpcore-nio" % "4.3.2",
-    //"com.google.code.gson" % "gson" % "2.3.1",
     "com.google.zxing" % "core" % "3.1.0",
-    //"org.apache.httpcomponents" % "httpcore" % "4.3.3",
     "javax.mail" % "mail" % "1.4.7",
     "info.blockchain" % "api" % "1.0.2",
-    "org.fusesource.jdbm" % "jdbm" % "2.0.1",
     "com.googlecode.libphonenumber" % "libphonenumber" % "7.0",
-    "org.jasypt" % "jasypt" % "1.9.2",
     "org.bitcoinj" % "bitcoinj-core" % "0.12.2",
     "commons-codec" % "commons-codec" % "1.10"
 )
+
+
+libraryDependencies ++= {
+    val akkaV = "2.3.6"
+    val sprayV = "1.3.2"
+    Seq(
+        "io.spray"            %%  "spray-can"     % sprayV,
+        "io.spray"            %%  "spray-routing" % sprayV,
+        "io.spray"            %%  "spray-testkit" % sprayV  % "test",
+        "com.typesafe.akka"   %%  "akka-actor"    % akkaV,
+        "com.typesafe.akka"   %%  "akka-testkit"  % akkaV   % "test",
+        "org.specs2"          %%  "specs2-core"   % "2.3.7" % "test"
+    )
+}

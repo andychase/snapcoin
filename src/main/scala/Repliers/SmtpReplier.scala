@@ -1,13 +1,17 @@
-import com.sun.mail.smtp.SMTPMessage
-import java.util.concurrent.LinkedBlockingQueue
+package Repliers
+
 import java.util.Properties
-import javax.mail.internet.InternetAddress
+import java.util.concurrent.LinkedBlockingQueue
 import javax.mail._
+import javax.mail.internet.InternetAddress
+
+import PhotoMoney.PhoneUtilities
+import com.sun.mail.smtp.SMTPMessage
 
 /**
  * Non-blocking email sender
  */
-class SmtpReplier(host: String, username: String, password: String) {
+class SmtpReplier(host: String, username: String, password: String) extends Replier {
     private val sendingQueue = new LinkedBlockingQueue[(Address, String, String)]()
     new Thread(new Sender(sendingQueue), "SenderKeepAlive").start()
 
@@ -34,8 +38,8 @@ class SmtpReplier(host: String, username: String, password: String) {
                 val (to: Address, extension: String, text: String) = queue.take()
                 val message = new SMTPMessage(session)
                 message.setText(text)
-                message.setFrom(new InternetAddress(s"snapcoinmail+$extension@gmail.com"))
-                message.setRecipient(Message.RecipientType.TO, PhoneTranslation.CheckAndTranslate(to))
+                message.setFrom(getFromAddress(extension))
+                message.setRecipient(Message.RecipientType.TO, PhoneUtilities.CheckAndTranslate(to))
                 // Final check to make sure the from and to aren't the same
                 // Otherwise the bot would talk to itself forever
                 if (new InternetAddress(username) != to)
@@ -43,5 +47,4 @@ class SmtpReplier(host: String, username: String, password: String) {
             }
         }
     }
-
 }
