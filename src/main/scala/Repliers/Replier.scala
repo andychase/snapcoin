@@ -1,12 +1,10 @@
 package Repliers
 
+import java.awt.image.BufferedImage
 import javax.mail.Address
-import javax.mail.internet.InternetAddress
+
+import PhotoMoney.Wallet
 
 trait Replier {
-    def sendMail(to: Address, extension: String, text: String)
-
-    def getFromAddress(extension: String): Address = {
-        new InternetAddress(s"$extension@p.snapcoin.net")
-    }
+    def sendMail(to: Address, wallet: Wallet, text: String, image: Option[BufferedImage])
 }

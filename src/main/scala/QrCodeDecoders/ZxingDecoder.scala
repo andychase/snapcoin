@@ -2,15 +2,19 @@ package QrCodeDecoders
 
 import java.awt.image.BufferedImage
 import java.util
+
 import com.google.zxing._
-import com.google.zxing.common.{BitMatrix, HybridBinarizer}
+import com.google.zxing.client.j2se.MatrixToImageWriter
+import com.google.zxing.common.HybridBinarizer
 import com.google.zxing.qrcode.QRCodeWriter
 import misc.BufferedImageLuminanceSource
 
 object ZxingDecoder extends QrCodeDecoder {
 
-    def encode(string: String): BitMatrix = {
-        new QRCodeWriter().encode(string, BarcodeFormat.QR_CODE, 128, 128)
+    def encode(string: String): BufferedImage = {
+
+            MatrixToImageWriter.toBufferedImage(new QRCodeWriter().encode(string, BarcodeFormat.QR_CODE, 128, 128))
+
     }
 
     def qrCodeImageDecode(image: BufferedImage): Option[String] = {

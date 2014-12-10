@@ -1,7 +1,9 @@
 package PaymentProviders
 
+import PhotoMoney.Wallet
+
 trait PaymentProvider {
-    def sendPayment(walletID: String, password: String, address: String, amount: Long)
+    def sendPayment(wallet:Wallet, address: String, amount: Long)
 
     def validateCredentials(): Boolean
 

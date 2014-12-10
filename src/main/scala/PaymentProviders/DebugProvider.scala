@@ -1,8 +1,10 @@
 package PaymentProviders
 
+import PhotoMoney.Wallet
+
 class DebugProvider extends PaymentProvider {
-    def sendPayment(walletID: String, password: String, address: String, amount: Long): Unit = {
-        println(s"sendPayment: walletID: $walletID, password: $password, address: $address, amount: $amount")
+    def sendPayment(wallet:Wallet, address: String, amount: Long): Unit = {
+        println(s"sendPayment: walletID: ${wallet.id}, password: ${wallet.password}, address: $address, amount: $amount")
     }
 
     def validateCredentials(): Boolean = true

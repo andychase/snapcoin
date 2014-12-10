@@ -1,28 +1,27 @@
 package PhotoMoney
 
 import java.util.UUID
+import javax.mail.internet.InternetAddress
 
 import PaymentProviders.PaymentProvider
 import QrCodeDecoders._
-import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
+import Repliers.Replier
 
-class PhotoMoneyStoryboard(paymentProvider: PaymentProvider) {
+object PhotoMoneyStoryboard {
 
-    def register(): (String, String, String) = {
+    def register(sender: String, paymentProvider: PaymentProvider, replier: Replier) {
         val walletPassword = UUID.randomUUID().toString
         // Create Bitcoin wallet
         val (walletID, bitcoinAddress) = paymentProvider.createWallet(walletPassword)
-        // Save walletID
-        (walletID, walletPassword, bitcoinAddress)
+        val wallet = new Wallet(walletID, walletPassword)
+
+        // Send welcome
+        val qrcodeImage = ZxingDecoder.encode("bitcoin:" + bitcoinAddress)
+        val introMessage = "Welcome!"
+        replier.sendMail(new InternetAddress(sender), wallet, introMessage, Some(qrcodeImage))
     }
 
-    def introMessage(phoneNumber: PhoneNumber, carrier: String, bitcoinAddress: String) = {
-        val qrcodeImage = ZxingDecoder.encode("bitcoin:"+bitcoinAddress)
-        val introMessage = ""
-        (qrcodeImage, introMessage)
-    }
-
-    def sendMoney(walletId: String, walletPassword:String, bitcoinAddress: String, amount: Long): Unit = {
-        paymentProvider.sendPayment(walletId, walletPassword, bitcoinAddress, amount)
+    def sendMoney(wallet:Wallet, bitcoinAddress: String, amount: Long, paymentProvider: PaymentProvider, replier: Replier): Unit = {
+        paymentProvider.sendPayment(wallet, bitcoinAddress, amount)
     }
 }

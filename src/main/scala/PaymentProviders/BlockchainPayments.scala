@@ -2,14 +2,14 @@ package PaymentProviders
 
 import info.blockchain.api.createwallet.CreateWallet
 import info.blockchain.api.exchangerates.ExchangeRates
-import info.blockchain.api.wallet.Wallet
+import info.blockchain
 
 
 class BlockchainPayments(private val api_key: String) extends PaymentProvider {
 
-    def sendPayment(walletID: String, password: String, address: String, amount: Long) {
-        val wallet = new Wallet(walletID, password)
-        wallet.send(address, amount, null, null, null)
+    def sendPayment(wallet:PhotoMoney.Wallet, address: String, amount: Long) {
+        val blockchainWallet = new blockchain.api.wallet.Wallet(wallet.id, wallet.password)
+        blockchainWallet.send(address, amount, null, null, null)
     }
 
 
