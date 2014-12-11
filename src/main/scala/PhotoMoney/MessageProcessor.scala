@@ -62,7 +62,7 @@ object MessageProcessor {
                                     val paymentAmount = bitcoinRequest.getAmount.getValue
                                     paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
                                     replier.sendMail(
-                                        PhoneUtilities.CheckAndTranslate(new InternetAddress(sender)),
+                                        AddressUtilities.pixToTxt(new InternetAddress(sender)),
                                         wallet,
                                         s"Sent $paymentAmount to $paymentAddress",
                                         None

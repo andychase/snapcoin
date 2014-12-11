@@ -16,4 +16,6 @@ class DebugReplier extends Replier {
               | --------------
             """.stripMargin)
     }
+
+    def validateCredentials(): Boolean = true
 }

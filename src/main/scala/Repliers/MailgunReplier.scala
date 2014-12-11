@@ -7,51 +7,41 @@ import javax.imageio.ImageIO
 import javax.mail.Address
 
 import PhotoMoney.Wallet
-import com.mashape.unirest.http.async.Callback
-import com.mashape.unirest.http.exceptions.UnirestException
-import com.mashape.unirest.http.{HttpResponse, Unirest}
+import com.ning.http.client.ByteArrayPart
+import com.ning.http.multipart.StringPart
+import dispatch.{Http, url}
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
+import scala.concurrent.ExecutionContext.Implicits.global
 
 
-/**
- * Non-blocking email sender
- */
 class MailgunReplier(postUrl: String, username: String, password: String) extends Replier {
     private val sendingQueue = new LinkedBlockingQueue[(Address, Wallet, String, Option[BufferedImage])]()
     new Thread(new Sender(sendingQueue), "SenderKeepAlive").start()
 
     def sendMail(to: Address, wallet: Wallet, text: String, image: Option[BufferedImage]) {
-        print(text)
         sendingQueue.add((to, wallet, text, image))
     }
 
     def post(to: Address, wallet: Wallet, text: String, maybeImage: Option[BufferedImage]): Unit = {
-        val req = Unirest.post(postUrl)
-            .header("accept", "application/json")
-            .field("to", to)
-            .field("to", wallet.toAddress)
-        for (image <- maybeImage)
-            req.field("inline", img2jpg(image))
 
-        req.basicAuth(username, password)
-            .asStringAsync(
-                new Callback[String]() {
-                    def failed(e: UnirestException) {
-                        println("Request failed")
-                        sendingQueue.put(to, wallet, text, maybeImage)
-                    }
+        val img = img2jpg(maybeImage.get)
+        val request = url(postUrl + "/messages").as_!(username, password)
+            .setMethod("POST")
+            .addBodyPart(new StringPart("to", to.toString))
+            .addBodyPart(new StringPart("from", wallet.toAddress.toString))
+            .addBodyPart(new StringPart("text", text.toString))
+            .addBodyPart(new ByteArrayPart("attachment", "qrCodeImage.png", img, "image/png", "UTF-8"))
 
-                    def completed(response: HttpResponse[String]) {}
-
-                    def cancelled() {
-                        failed(null)
-                    }
-                })
+        for (r <- Http(request))
+            println(r.getResponseBody)
     }
 
 
     def img2jpg(image: BufferedImage): Array[Byte] = {
         val baos = new ByteArrayOutputStream()
-        ImageIO.write(image, "jpg", baos)
+        ImageIO.write(image, "png", baos)
         baos.flush()
         val imageInByte = baos.toByteArray
         baos.close()
@@ -66,5 +56,11 @@ class MailgunReplier(postUrl: String, username: String, password: String) extend
                 post(to, wallet, text, image)
             }
         }
+    }
+
+    def validateCredentials(): Boolean = {
+        val request = url(postUrl + "/log?limit=1").as_!(username, password)
+        val waitDuration = 10.seconds
+        Await.result(Http(request), waitDuration).getStatusCode == 200
     }
 }

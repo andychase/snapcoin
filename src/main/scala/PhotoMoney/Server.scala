@@ -30,12 +30,15 @@ object Server extends App with SimpleRoutingApp {
             val _paymentProvider = new BlockchainPayments(blockchain_api)
             _paymentProvider.validateCredentials()
             val _replier = new MailgunReplier(email_post_url, email_user, email_password)
+            if (!_replier.validateCredentials()) {
+                throw new Exception("Can't validate replier")
+            }
             (_paymentProvider, _replier)
         }
     }
 
     val (paymentProvider, replier) = setup()
-    val port = Option(System.getenv("PORT")) getOrElse "5000"
+    val port = Option(System.getenv("PORT")) getOrElse "50031"
 
     startServer(interface = "0.0.0.0", port = Integer.parseInt(port)) {
         path("msg") {

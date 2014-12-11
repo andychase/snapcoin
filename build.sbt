@@ -16,7 +16,7 @@ libraryDependencies ++= Seq(
     "org.bitcoinj" % "bitcoinj-core" % "0.12.2",
     "commons-codec" % "commons-codec" % "1.10",
     "com.google.zxing" % "javase" % "3.1.0",
-    "com.mashape.unirest" % "unirest-java" %  "1.3.27"
+    "net.databinder.dispatch" %% "dispatch-core" % "0.11.2"
 )
 
 

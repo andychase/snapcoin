@@ -11,6 +11,6 @@ class DebugProvider extends PaymentProvider {
 
     def createWallet(walletPassword: String): (String, String) = {
         print(s"createWallet: $walletPassword")
-        ("", "")
+        ("FAKEWALLET", "1Archive1n2C579dMsAu3iC6tWzuQJz8dN")
     }
 }

@@ -18,7 +18,12 @@ object PhotoMoneyStoryboard {
         // Send welcome
         val qrcodeImage = ZxingDecoder.encode("bitcoin:" + bitcoinAddress)
         val introMessage = "Welcome!"
-        replier.sendMail(new InternetAddress(sender), wallet, introMessage, Some(qrcodeImage))
+        replier.sendMail(
+            AddressUtilities.txtToPix(new InternetAddress(sender)),
+            wallet,
+            introMessage,
+            Some(qrcodeImage)
+        )
     }
 
     def sendMoney(wallet:Wallet, bitcoinAddress: String, amount: Long, paymentProvider: PaymentProvider, replier: Replier): Unit = {
