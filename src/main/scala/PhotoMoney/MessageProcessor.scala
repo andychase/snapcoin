@@ -10,9 +10,11 @@ import QrCodeDecoders.CombinedDecoder
 import Repliers.Replier
 import org.bitcoinj.uri.{BitcoinURIParseException, BitcoinURI}
 import spray.http.HttpData.NonEmpty
-import spray.http.{BodyPart, MultipartContent}
+import spray.http.{FormData, BodyPart, MultipartContent}
 
 object MessageProcessor {
+    type EmailData = (Option[Wallet], String, Option[BodyPart])
+
     def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] = {
         try {
             Some(ImageIO.read(new ByteArrayInputStream(data)))
@@ -30,7 +32,7 @@ object MessageProcessor {
         else None
     }
 
-    def sortEmail(dataInPartsMap: Map[String, BodyPart]): (Option[Wallet], String, Option[BodyPart]) = {
+    def sortEmail(dataInPartsMap: Map[String, BodyPart]): EmailData = {
         val emailHas = dataInPartsMap.contains _
         val get = dataInPartsMap(_: String).entity.data.asString
         val getIfPossible = { s: String => if (emailHas(s)) get(s) else ""}
@@ -47,7 +49,22 @@ object MessageProcessor {
     }
 
     def processEmail(emailData: MultipartContent, paymentProvider: PaymentProvider, replier: Replier): Unit = {
-        sortEmail(getDataInPartsMap(emailData)) match {
+        processEmail(sortEmail(getDataInPartsMap(emailData)), paymentProvider, replier)
+    }
+
+    def processEmail(emailData: FormData, paymentProvider: PaymentProvider, replier: Replier): Unit = {
+        var recipient:Option[Wallet] = None
+        var sender = ""
+        emailData.fields foreach {
+            case ("recipient", _addr) => recipient = Wallet.addressToWallet(new InternetAddress(_addr))
+            case ("sender", _sender) => sender = _sender
+            case _=>
+        }
+        processEmail((recipient, sender, None), paymentProvider, replier)
+    }
+
+    def processEmail(emailData: EmailData, paymentProvider: PaymentProvider, replier: Replier): Unit = {
+        emailData match {
             case (None, sender, _) =>
                 PhotoMoneyStoryboard.register(sender, paymentProvider, replier)
 

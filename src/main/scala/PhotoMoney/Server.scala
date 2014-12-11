@@ -3,7 +3,7 @@ package PhotoMoney
 import PaymentProviders.{PaymentProvider, BlockchainPayments, DebugProvider}
 import Repliers.{MailgunReplier, DebugReplier, Replier}
 import akka.actor.ActorSystem
-import spray.http.MultipartContent
+import spray.http.{FormData, MultipartContent}
 import spray.routing.SimpleRoutingApp
 
 object Server extends App with SimpleRoutingApp {
@@ -44,6 +44,9 @@ object Server extends App with SimpleRoutingApp {
         path("msg") {
             post {
                 entity(as[MultipartContent]) { emailData =>
+                    MessageProcessor.processEmail(emailData, paymentProvider, replier)
+                    complete("OK")
+                }~ entity(as[FormData]) { emailData =>
                     MessageProcessor.processEmail(emailData, paymentProvider, replier)
                     complete("OK")
                 }
