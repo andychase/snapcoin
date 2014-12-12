@@ -4,12 +4,12 @@ import java.util.UUID
 import javax.mail.Address
 
 import PaymentProviders.PaymentProvider
-import QrCodeDecoders._
 import Repliers.Replier
 import info.blockchain.api.APIException
 import org.bitcoinj.uri.BitcoinURI
-import scala.concurrent.Future
+
 import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 object PhotoMoneyStoryboard {
 
@@ -21,13 +21,13 @@ object PhotoMoneyStoryboard {
             val wallet = new Wallet(walletID, walletPassword)
 
             // Send welcome
-            val qrcodeImage = ZxingDecoder.encode("bitcoin:" + bitcoinAddress)
-            val introMessage = "Welcome!"
+            val introMessage =
+                s"Hello! Your Bitcoin address is $bitcoinAddress. Fill this then spend by" +
+                " replying to this message with payment request qr codes. -Snapcoin.net"
             replier.sendMail(
-                AddressUtilities.txtToPix(sender),
+                sender,
                 wallet,
-                introMessage,
-                Some(qrcodeImage)
+                introMessage
             )
         }
     }
