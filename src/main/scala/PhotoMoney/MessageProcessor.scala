@@ -76,15 +76,10 @@ object MessageProcessor {
                         case Some(imageData) =>
                             CombinedDecoder.qrCodeImageDecode(imageData) match {
                                 case Some(codeString) => try {
-                                    val bitcoinRequest = new BitcoinURI(codeString)
-                                    val paymentAddress = bitcoinRequest.getAddress.toString
-                                    val paymentAmount = bitcoinRequest.getAmount.getValue
-                                    paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
-                                    replier.sendMail(
-                                        AddressUtilities.pixToTxt(sender),
-                                        wallet,
-                                        s"Sent $paymentAmount to $paymentAddress",
-                                        None
+                                    PhotoMoneyStoryboard.sendMoney(
+                                        sender,
+                                        wallet, new BitcoinURI(codeString),
+                                        paymentProvider, replier
                                     )
                                 } catch {
                                     case e: BitcoinURIParseException =>
@@ -99,6 +94,11 @@ object MessageProcessor {
                     }
                     case _ =>
                 }
+            case (Some(wallet), sender, None) =>
+                // Did not send image
+                replier.sendMail(sender, wallet, "You did not attach a qr code!")
+            case _ =>
+            // No sender can't do anything
         }
     }
 }
