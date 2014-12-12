@@ -8,5 +8,5 @@ import PhotoMoney.Wallet
 trait Replier {
     def validateCredentials(): Boolean
 
-    def sendMail(to: Address, wallet: Wallet, text: String, image: Option[BufferedImage])
+    def sendMail(to: Address, wallet: Wallet, text: String, image: Option[BufferedImage]=None)
 }

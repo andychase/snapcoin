@@ -3,6 +3,7 @@ package PhotoMoney
 import java.awt.image.BufferedImage
 import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
+import javax.mail.Address
 import javax.mail.internet.InternetAddress
 
 import PaymentProviders.PaymentProvider
@@ -13,7 +14,7 @@ import spray.http.HttpData.NonEmpty
 import spray.http.{FormData, BodyPart, MultipartContent}
 
 object MessageProcessor {
-    type EmailData = (Option[Wallet], String, Option[BodyPart])
+    type EmailData = (Option[Wallet], Address, Option[BodyPart])
 
     def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] = {
         try {
@@ -38,7 +39,7 @@ object MessageProcessor {
         val getIfPossible = { s: String => if (emailHas(s)) get(s) else ""}
         val recipient = Wallet.addressToWallet(new InternetAddress(getIfPossible("recipient")))
 
-        (recipient, getIfPossible("sender"), getAttachmentIfPossible(dataInPartsMap))
+        (recipient, new InternetAddress(getIfPossible("sender")), getAttachmentIfPossible(dataInPartsMap))
     }
 
     def getDataInPartsMap(emailData: MultipartContent): Map[String, BodyPart] = {
@@ -53,12 +54,12 @@ object MessageProcessor {
     }
 
     def processEmail(emailData: FormData, paymentProvider: PaymentProvider, replier: Replier): Unit = {
-        var recipient:Option[Wallet] = None
-        var sender = ""
+        var recipient: Option[Wallet] = None
+        var sender: InternetAddress = null
         emailData.fields foreach {
             case ("recipient", _addr) => recipient = Wallet.addressToWallet(new InternetAddress(_addr))
-            case ("sender", _sender) => sender = _sender
-            case _=>
+            case ("sender", _sender) => sender = new InternetAddress(_sender)
+            case _ =>
         }
         processEmail((recipient, sender, None), paymentProvider, replier)
     }
@@ -79,7 +80,7 @@ object MessageProcessor {
                                     val paymentAmount = bitcoinRequest.getAmount.getValue
                                     paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
                                     replier.sendMail(
-                                        AddressUtilities.pixToTxt(new InternetAddress(sender)),
+                                        AddressUtilities.pixToTxt(sender),
                                         wallet,
                                         s"Sent $paymentAmount to $paymentAddress",
                                         None

@@ -1,7 +1,7 @@
 package PhotoMoney
 
 import java.util.UUID
-import javax.mail.internet.InternetAddress
+import javax.mail.Address
 
 import PaymentProviders.PaymentProvider
 import QrCodeDecoders._
@@ -9,7 +9,7 @@ import Repliers.Replier
 
 object PhotoMoneyStoryboard {
 
-    def register(sender: String, paymentProvider: PaymentProvider, replier: Replier) {
+    def register(sender: Address, paymentProvider: PaymentProvider, replier: Replier) {
         val walletPassword = UUID.randomUUID().toString
         // Create Bitcoin wallet
         val (walletID, bitcoinAddress) = paymentProvider.createWallet(walletPassword)
@@ -19,7 +19,7 @@ object PhotoMoneyStoryboard {
         val qrcodeImage = ZxingDecoder.encode("bitcoin:" + bitcoinAddress)
         val introMessage = "Welcome!"
         replier.sendMail(
-            AddressUtilities.txtToPix(new InternetAddress(sender)),
+            AddressUtilities.txtToPix(sender),
             wallet,
             introMessage,
             Some(qrcodeImage)
