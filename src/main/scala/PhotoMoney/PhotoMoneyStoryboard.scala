@@ -1,6 +1,5 @@
 package PhotoMoney
 
-import java.util.UUID
 import javax.mail.Address
 
 import PaymentProviders.PaymentProvider
@@ -8,28 +7,33 @@ import Repliers.Replier
 import info.blockchain.api.APIException
 import org.bitcoinj.uri.BitcoinURI
 
-import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.util.{Failure, Success}
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object PhotoMoneyStoryboard {
 
     def register(sender: Address, paymentProvider: PaymentProvider, replier: Replier) {
-        val walletPassword = UUID.randomUUID().toString.split('-').mkString("").substring(0, 12)
-        // Create Bitcoin wallet
+        val walletPassword = Wallet.generatePassword()
         Future {
+            // Create Bitcoin wallet
             val (walletID, bitcoinAddress) = paymentProvider.createWallet(walletPassword)
-            val wallet = new Wallet(walletID, walletPassword)
-
-            // Send welcome
-            val introMessage =
-                s"Hello! Your Bitcoin address is $bitcoinAddress. Fill this then spend by" +
-                " replying to this message with payment request qr codes. -Snapcoin.net"
-            replier.sendMail(
-                sender,
-                wallet,
-                introMessage
-            )
+            (new Wallet(walletID, walletPassword), bitcoinAddress)
+        } onComplete {
+            case Success((wallet, bitcoinAddress)) =>
+                // Send welcome
+                val introMessage =
+                    s"Hello! Your Bitcoin address is $bitcoinAddress. Fill this then spend by" +
+                        " replying to this message with payment request qr codes. -Snapcoin.net"
+                replier.sendMail(
+                    sender,
+                    wallet,
+                    introMessage
+                )
+            case Failure(e: APIException) =>
+                println(s"Error during user registration: ${e.getMessage}")
         }
+
     }
 
     def sendMoney(sender: Address,
@@ -43,15 +47,14 @@ object PhotoMoneyStoryboard {
         val reply = replier.sendMail(AddressUtilities.pixToTxt(sender), wallet, _: String)
 
         Future {
-            try {
-                paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
+            paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
+        } onComplete {
+            case Success(_) =>
                 reply(s"Sent ${bitcoinRequest.getAmount.toFriendlyString} to $paymentAddress")
-
-            }
-            catch {
-                case e: APIException =>
-                    reply(s"Problem sending payment: ${e.getMessage}")
-            }
+            case Failure(e: APIException) =>
+                reply(s"Problem sending payment: ${e.getMessage}")
+            case Failure(_) =>
         }
+
     }
 }

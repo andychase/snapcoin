@@ -84,13 +84,18 @@ object MessageProcessor {
                                 } catch {
                                     case e: BitcoinURIParseException =>
                                     // Could not parse qr code
+                                    replier.sendMail(sender, wallet, "That qr code isn't in the right format" +
+                                        "It should be a payment request qr code"
+                                    )
                                 }
                                 case None =>
                                 // Could not decode image
+                                replier.sendMail(sender, wallet, "I couldn't decode that attachment")
                             }
 
                         case None =>
                         // Did not find attachment
+                        replier.sendMail(sender, wallet, "I could not find any qr code attached")
                     }
                     case _ =>
                 }
@@ -99,6 +104,7 @@ object MessageProcessor {
                 replier.sendMail(sender, wallet, "You did not attach a qr code!")
             case _ =>
             // No sender can't do anything
+            println("No sender")
         }
     }
 }
