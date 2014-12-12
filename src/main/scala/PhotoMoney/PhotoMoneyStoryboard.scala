@@ -11,7 +11,7 @@ import org.bitcoinj.uri.BitcoinURI
 object PhotoMoneyStoryboard {
 
     def register(sender: Address, paymentProvider: PaymentProvider, replier: Replier) {
-        val walletPassword = UUID.randomUUID().toString
+        val walletPassword = UUID.randomUUID().toString.split('-').mkString("").substring(0, 12)
         // Create Bitcoin wallet
         val (walletID, bitcoinAddress) = paymentProvider.createWallet(walletPassword)
         val wallet = new Wallet(walletID, walletPassword)
