@@ -18,9 +18,10 @@ object MessageProcessor {
 
     def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] = {
         try {
-            Some(ImageIO.read(new ByteArrayInputStream(data)))
+            Option(ImageIO.read(new ByteArrayInputStream(data)))
         } catch {
             case e: Exception =>
+                println(s"Exception reading image. ${e.getCause}")
                 None
         }
 
@@ -29,7 +30,7 @@ object MessageProcessor {
     def getAttachmentIfPossible(dataInPartsMap: Map[String, BodyPart]): Option[BodyPart] = {
         if (dataInPartsMap.contains("attachment-count") &&
             (dataInPartsMap("attachment-count").entity.data.asString.toInt > 0))
-            Some(dataInPartsMap("attachment-count"))
+            Some(dataInPartsMap("attachment-1"))
         else None
     }
 

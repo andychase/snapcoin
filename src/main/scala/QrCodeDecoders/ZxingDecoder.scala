@@ -12,9 +12,7 @@ import misc.BufferedImageLuminanceSource
 object ZxingDecoder extends QrCodeDecoder {
 
     def encode(string: String): BufferedImage = {
-
             MatrixToImageWriter.toBufferedImage(new QRCodeWriter().encode(string, BarcodeFormat.QR_CODE, 128, 128))
-
     }
 
     def qrCodeImageDecode(image: BufferedImage): Option[String] = {
