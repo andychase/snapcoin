@@ -8,24 +8,28 @@ import QrCodeDecoders._
 import Repliers.Replier
 import info.blockchain.api.APIException
 import org.bitcoinj.uri.BitcoinURI
+import scala.concurrent.Future
+import scala.concurrent.ExecutionContext.Implicits.global
 
 object PhotoMoneyStoryboard {
 
     def register(sender: Address, paymentProvider: PaymentProvider, replier: Replier) {
         val walletPassword = UUID.randomUUID().toString.split('-').mkString("").substring(0, 12)
         // Create Bitcoin wallet
-        val (walletID, bitcoinAddress) = paymentProvider.createWallet(walletPassword)
-        val wallet = new Wallet(walletID, walletPassword)
+        Future {
+            val (walletID, bitcoinAddress) = paymentProvider.createWallet(walletPassword)
+            val wallet = new Wallet(walletID, walletPassword)
 
-        // Send welcome
-        val qrcodeImage = ZxingDecoder.encode("bitcoin:" + bitcoinAddress)
-        val introMessage = "Welcome!"
-        replier.sendMail(
-            AddressUtilities.txtToPix(sender),
-            wallet,
-            introMessage,
-            Some(qrcodeImage)
-        )
+            // Send welcome
+            val qrcodeImage = ZxingDecoder.encode("bitcoin:" + bitcoinAddress)
+            val introMessage = "Welcome!"
+            replier.sendMail(
+                AddressUtilities.txtToPix(sender),
+                wallet,
+                introMessage,
+                Some(qrcodeImage)
+            )
+        }
     }
 
     def sendMoney(sender: Address,
@@ -38,15 +42,16 @@ object PhotoMoneyStoryboard {
         val paymentAmount = bitcoinRequest.getAmount.getValue
         val reply = replier.sendMail(AddressUtilities.pixToTxt(sender), wallet, _: String)
 
-        try {
-            paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
-            reply(s"Sent ${bitcoinRequest.getAmount.toFriendlyString} to $paymentAddress")
+        Future {
+            try {
+                paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)
+                reply(s"Sent ${bitcoinRequest.getAmount.toFriendlyString} to $paymentAddress")
 
+            }
+            catch {
+                case e: APIException =>
+                    reply(s"Problem sending payment: ${e.getMessage}")
+            }
         }
-        catch {
-            case e: APIException =>
-                reply(s"Problem sending payment: ${e.getMessage}")
-        }
-
     }
 }

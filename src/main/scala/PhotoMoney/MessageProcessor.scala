@@ -9,9 +9,9 @@ import javax.mail.internet.InternetAddress
 import PaymentProviders.PaymentProvider
 import QrCodeDecoders.CombinedDecoder
 import Repliers.Replier
-import org.bitcoinj.uri.{BitcoinURIParseException, BitcoinURI}
+import org.bitcoinj.uri.{BitcoinURI, BitcoinURIParseException}
 import spray.http.HttpData.NonEmpty
-import spray.http.{FormData, BodyPart, MultipartContent}
+import spray.http.{BodyPart, FormData, MultipartContent}
 
 object MessageProcessor {
     type EmailData = (Option[Wallet], Address, Option[BodyPart])
