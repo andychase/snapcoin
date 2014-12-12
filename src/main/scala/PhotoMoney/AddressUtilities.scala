@@ -44,15 +44,4 @@ object AddressUtilities {
             case Some(ending) => addressParts.head ++ "@" ++ ending
             case None => addressParts.mkString("@")
         }
-
-
-    def parseFrom(from: String) = {
-        val plusIndex = from.indexOf('+') + 1
-        val atIndex = from.indexOf('@')
-        if (atIndex == -1 || plusIndex == -1 || plusIndex > atIndex) {
-            ""
-        } else {
-            from.substring(plusIndex, atIndex)
-        }
-    }
 }

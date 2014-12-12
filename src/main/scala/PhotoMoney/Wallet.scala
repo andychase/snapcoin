@@ -16,9 +16,8 @@ object Wallet {
         val pipeIndex = addressString.indexOf('|')
         val atIndex = addressString.indexOf('@')
         if (plusIndex > 0 && pipeIndex > 0 && atIndex > pipeIndex && pipeIndex > plusIndex) {
-            val (addressBody, _) = addressString.splitAt(atIndex)
-            val (payAndWallet, walletPassword) = addressBody.splitAt(pipeIndex)
-            val (_, walletID) = payAndWallet.splitAt(plusIndex)
+            val walletPassword = addressString.substring(plusIndex+1, pipeIndex)
+            val walletID = addressString.substring(pipeIndex+1, atIndex)
             Some(new Wallet(walletID, walletPassword))
         } else {
             None
