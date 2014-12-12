@@ -9,6 +9,7 @@ class BlockchainPayments(private val api_key: String) extends PaymentProvider {
 
     def sendPayment(wallet:PhotoMoney.Wallet, address: String, amount: Long) {
         val blockchainWallet = new blockchain.api.wallet.Wallet(wallet.id, wallet.password)
+        blockchainWallet.setApiCode(api_key)
         blockchainWallet.send(address, amount, null, null, null)
     }
 
