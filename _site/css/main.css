@@ -308,6 +308,30 @@ pre {
       .post-content h4 {
         font-size: 18px; } }
 
+#maincard {
+  display: block;
+  height: 443px;
+  background: url("/resources/bkg.png") no-repeat;
+  background-position-y: top;
+  background-position-x: center;
+  position: relative;
+  top: -111px;
+  margin: 0 auto;
+  z-index: -1; }
+  #maincard h1 {
+    text-align: center;
+    position: relative;
+    top: 120px;
+    font-size: 24pt; }
+
+.phoneinfo {
+  position: relative;
+  left: 7px; }
+
+.homepagecontent {
+  position: relative;
+  margin-top: -332px; }
+
 .phones {
   display: inline-block;
   width: 170px;
@@ -355,6 +379,15 @@ h2 {
   padding: 5px; }
   #home_text_link:visited {
     color: white; }
+
+.homepage a {
+  color: rgba(0, 0, 0, 0.5);
+  text-decoration: none; }
+  .homepage a:visited {
+    color: rgba(0, 0, 0, 0.5); }
+  .homepage a:hover {
+    text-decoration: none;
+    border-bottom: 1px rgba(0, 0, 0, 0.5) dashed; }
 
 .nav {
   display: inline-block;

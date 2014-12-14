@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+{% include head.html %}
+
+<body>
+
+{% include header.html %}
+
+
+<div class="page-content homepage">
+    <div class="wrapper">
+        {% include nav.html %}
+    </div>
+</div>
+
+<div id="maincard">
+    <h1>Bitcoin for feature phones.</h1>
+</div>
+
+
+<div class="page-content homepagecontent">
+    <div class="wrapper">
+        <div class="post">
+            <article class="post-content">
+                <div class="phoneinfo">
+                    <p class="phones"><img src="/resources/1phone.png" alt="Take Picture"><span><br><i
+                            class="fa fa-camera-retro"></i>Snap a picture of a Bitcoin QR code.</span></p>
+
+                    <p class="phones"><img src="/resources/2phone.png" alt="Send Picture"><span><br><i
+                            class="fa fa-envelope-o"></i>Send the picture to a special, secret address we provide.</span>
+                    </p>
+
+                    <p class="phones"><img src="/resources/3phone.png" alt="Payed with Bitcoin!"><span><br><i
+                            class="fa fa-btc"></i>You just paid for something using Bitcoin!</span></p>
+
+                </div>
+
+                {{ content }}
+            </article>
+        </div>
+    </div>
+</div>
+
+
+{% include footer.html %}
+
+</body>
+
+</html>

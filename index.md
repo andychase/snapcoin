@@ -1,22 +1,12 @@
 ---
-layout: page
+layout: homepage
 title: "Snapcoin: Bitcoin for feature phones. Take pictures and send to spend."
 ---
 
-## Bitcoin: Smartphone not required
-
-Snapcoin is a service that lets you spend Bitcoin using your phone's picture messaging functionality.
-{: .moreinfo}
-
-
-![Take Picture](/resources/1phone.png)<span><br><i class="fa fa-camera-retro"></i>Snap a picture of a Bitcoin QR code.</span>
-{: .phones}
-![Send Picture](/resources/2phone.png)<span><br><i class="fa fa-envelope-o"></i>Send the picture to a special, secret address we provide.</span>
-{: .phones}
-![Payed with Bitcoin!](/resources/3phone.png)<span><br><i class="fa fa-btc"></i>You just paid for something using Bitcoin!</span>
-{: .phones}
 
 ## ▽▽ Be informed when the service starts! ▽▽
+
+<a id="signup"></a>
 
 <form action="https://whispering-ocean-2717.herokuapp.com/" method="POST" class="signupform">
 <label>Email:<br/><input type="text" placeholder="email@example.com" name="email" /></label><br>
