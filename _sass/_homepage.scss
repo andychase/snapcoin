@@ -54,7 +54,7 @@
   text-align: center;
 }
 
-h2 {
+h2.register {
   text-align: center;
 }
 
@@ -99,4 +99,19 @@ h2 {
     text-decoration: none;
     border-bottom: 1px rgba(0, 0, 0, 0.50) dashed;
   }
+}
+
+.feetable {
+  td {
+    font-size: 36pt;
+  }
+}
+
+.warning {
+  border: 1px solid black;
+  border-left-width: 6px;
+  border-radius: 5px;
+  padding: 5px;
+  max-width: 500px;
+  background-color: rgb(223, 223, 223);
 }

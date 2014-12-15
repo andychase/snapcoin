@@ -5,8 +5,9 @@ title: "Snapcoin: Bitcoin for feature phones. Take pictures and send to spend."
 
 
 ## ▽▽ Be informed when the service starts! ▽▽
+{:.register}
 
-<a id="signup"></a>
+<a id="register"></a>
 
 <form action="https://whispering-ocean-2717.herokuapp.com/" method="POST" class="signupform">
 <label>Email:<br/><input type="text" placeholder="email@example.com" name="email" /></label><br>
