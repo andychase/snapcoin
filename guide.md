@@ -11,6 +11,18 @@ Guide
 * Table of Contents
 {:toc}
 
+Overview
+--------
+
+| Command           | Action                  |
+|---------------------------------------------|
+| `address`         | [Get your Bitcoin address](#adding-funds)
+| `balance`         | [Get Balance](#get-balance)
+| `send ...`        | [Send Money - without a qr code](#send-money---without-a-qr-code)
+| `<qr code>`       | [Send Money - with a qr code](#send-money---with-a-qr-code)
+
+<br />
+
 Registering an account
 ----------------------
 
@@ -66,6 +78,9 @@ Send Money - with a qr code
 
 1. Snap a picture of it and send it to your snapcoin.net account address.
 2. If the QR code does not include an amount to send, you will get a text asking you how much to send.
+
+   If you know already that the QR code does not include an amount
+   you can send send the command `[amount] [btc/ubtc/bits/sat]` with the image to skip that extra step.
 
 Removing Funds
 --------------
