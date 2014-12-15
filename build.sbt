@@ -9,6 +9,7 @@ resolvers +=
 
 libraryDependencies ++= Seq(
     "commons-lang" % "commons-lang" % "2.6",
+    "org.apache.commons" % "commons-lang3" % "3.3.2",
     "com.google.zxing" % "core" % "3.1.0",
     "javax.mail" % "mail" % "1.4.7",
     "info.blockchain" % "api" % "1.0.2",
@@ -16,7 +17,8 @@ libraryDependencies ++= Seq(
     "org.bitcoinj" % "bitcoinj-core" % "0.12.2",
     "commons-codec" % "commons-codec" % "1.10",
     "com.google.zxing" % "javase" % "3.1.0",
-    "net.databinder.dispatch" %% "dispatch-core" % "0.11.2"
+    "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
+    "org.specs2" % "specs2_2.10" % "2.3.7"  % "test"
 )
 
 
