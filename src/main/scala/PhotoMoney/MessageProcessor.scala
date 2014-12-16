@@ -5,13 +5,13 @@ import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 import javax.mail.Address
 import javax.mail.internet.InternetAddress
-
 import spray.http.HttpData.NonEmpty
 import spray.http.{BodyPart, FormData, MultipartContent}
+import QueryUnderstand.QueryUnderstand
 
 object MessageProcessor {
-    type EmailData = (Option[Wallet], Address, Option[BodyPart])
-        type MailResponse = (Option[Address], Option[Wallet], Either[String, AbstractQuery])
+    type EmailData = (Option[Wallet], Address, Option[String], Option[BodyPart])
+    type MailResponse = (Option[Address], Option[Wallet], Either[String, AbstractQuery])
 
     def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] = {
         try {
@@ -37,7 +37,10 @@ object MessageProcessor {
         val getIfPossible = { s: String => if (emailHas(s)) get(s) else ""}
         val recipient = Wallet.addressToWallet(new InternetAddress(getIfPossible("recipient")))
 
-        (recipient, new InternetAddress(getIfPossible("sender")), getAttachmentIfPossible(dataInPartsMap))
+        (recipient,
+            new InternetAddress(getIfPossible("sender")),
+            Option(getIfPossible("body-plain")),
+            getAttachmentIfPossible(dataInPartsMap))
     }
 
     def getDataInPartsMap(emailData: MultipartContent): Map[String, BodyPart] = {
@@ -54,42 +57,37 @@ object MessageProcessor {
     def processEmail(emailData: FormData): MailResponse = {
         var recipient: Option[Wallet] = None
         var sender: InternetAddress = null
+        var bodyText: Option[String] = None
         emailData.fields foreach {
             case ("recipient", _addr) => recipient = Wallet.addressToWallet(new InternetAddress(_addr))
             case ("sender", _sender) => sender = new InternetAddress(_sender)
+            case ("body-plain", _body_plain) => bodyText = Some(_body_plain)
             case _ =>
         }
-        processEmailEnvelope(recipient, sender, None)
+        processEmailEnvelope(recipient, sender, bodyText, None)
     }
 
     def processEmailEnvelope(emailData: EmailData): MailResponse = {
         emailData match {
-            case (wallet, null, _) =>
+            case (wallet, null, _, _) =>
                 (None, None, Left("No sender"))
-            case (None, sender, _) =>
-                (Some(sender), None, Right(RegisterRequest()))
-            case (Some(wallet), sender, maybeAttachment) =>
-                (Some(sender), Some(wallet), processEmailAttachment(maybeAttachment))
+            case (Some(wallet), sender, _, Some(attachment)) =>
+                (Some(sender), Some(wallet), processEmailAttachment(attachment))
+            case (Some(wallet), sender, Some(text), None) if !text.trim.isEmpty =>
+                (Some(sender), Some(wallet), QueryUnderstand.decodeQuery(text))
         }
     }
 
-    def processEmailAttachment(maybeAttachment: Option[BodyPart]): Either[String, AbstractQuery] =
-        maybeAttachment match {
-
-            case Some(attachment) =>
-                attachment.entity.data match {
-                    case data: NonEmpty => dataToBufferedImage(data.toByteArray) match {
-                        case Some(imageData) =>
-                            Right(SendMoneyImage(imageData))
-                        case None =>
-                            // Could not
-                            Left("I could not find any qr code attached")
-                    }
-                    case _ =>
-                        Left("I could not find any qr code attached")
-                }
-            case None =>
-                // Did not send image
-                Left("You did not attach a qr code!")
+    def processEmailAttachment(attachment: BodyPart): Either[String, AbstractQuery] =
+        attachment.entity.data match {
+            case data: NonEmpty => dataToBufferedImage(data.toByteArray) match {
+                case Some(imageData) =>
+                    Right(SendMoneyImage(imageData))
+                case None =>
+                    // Could not
+                    Left("I could not find any qr code attached")
+            }
+            case _ =>
+                Left("I could not find any qr code attached")
         }
 }

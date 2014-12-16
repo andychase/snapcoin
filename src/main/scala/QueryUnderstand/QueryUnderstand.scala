@@ -143,6 +143,7 @@ object QueryUnderstand {
     def decodeSingleCommandQuery(command: String): Either[String, AbstractQuery] = command match {
         case "address" | "addr" => Right(AddressRequest())
         case "balance" | "bal" => Right(BalanceRequest())
+        case "register" => Right(RegisterRequest())
         case _ => Left("I don't understand that command. Attach image or text 'address', 'balance', or 'send [amount] [unit] [address]'.")
     }
 
@@ -151,7 +152,7 @@ object QueryUnderstand {
         val newlineIndex = trimmedQuery.indexOf('\n')
         val splitQuery =
             if (newlineIndex > 0)
-                trimmedQuery.substring(0, newlineIndex).split(' ').toList
+                trimmedQuery.substring(0, newlineIndex).trim.split(' ').toList
             else
                 query.trim.split(' ').toList
 
