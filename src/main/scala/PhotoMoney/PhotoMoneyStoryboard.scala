@@ -1,19 +1,21 @@
 package PhotoMoney
 
 import java.awt.image.BufferedImage
-import javax.mail.Address
 
 import PaymentProviders.PaymentProvider
 import QrCodeDecoders.CombinedDecoder
 import Repliers.Replier
 import info.blockchain.api.APIException
-import org.bitcoinj.uri.{BitcoinURIParseException, BitcoinURI}
+import org.bitcoinj.core.Coin
+import org.bitcoinj.uri.{BitcoinURI, BitcoinURIParseException}
 
-import scala.util.{Try, Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
+    type BitcoinAddress = org.bitcoinj.core.Address
+    type EmailAddress = javax.mail.Address
 
-    def register(sender: Address): String = {
+    def register(sender: EmailAddress): String = {
         val walletPassword = Wallet.generatePassword()
         // Create Bitcoin wallet
         Try(paymentProvider.createWallet(walletPassword)) match {
@@ -31,16 +33,10 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
         }
     }
 
-
-    def sendMoney(wallet: Wallet,
-                  bitcoinRequest: BitcoinURI): String = {
-
-        val paymentAddress = bitcoinRequest.getAddress.toString
-        val paymentAmount = bitcoinRequest.getAmount.getValue
-
-        Try(paymentProvider.sendPayment(wallet, paymentAddress, paymentAmount)) match {
+    def sendMoney(wallet: Wallet, address: BitcoinAddress, amount: Coin): String = {
+        Try(paymentProvider.sendPayment(wallet, address.toString, amount.getValue)) match {
             case Success(_) =>
-                s"Sent ${bitcoinRequest.getAmount.toFriendlyString} to $paymentAddress"
+                s"Sent ${amount.toFriendlyString} to $address"
             case Failure(e: APIException) =>
                 s"Problem sending payment: ${e.getMessage}"
             case Failure(e: Exception) =>
@@ -51,11 +47,11 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
         }
     }
 
-    def getBalance(wallet:Wallet): String = {
+    def getBalance(wallet: Wallet): String = {
         "Your balance is: " + paymentProvider.getBalance(wallet).toFriendlyString
     }
 
-    def getAddress(wallet:Wallet):String = {
+    def getAddress(wallet: Wallet): String = {
         "Here's a Bitcoin address for your account: " + paymentProvider.getAddress(wallet)
     }
 
@@ -76,7 +72,7 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
         }
     }
 
-    def handleQuery(args: (Option[Address], Option[Wallet], Either[String, AbstractQuery])): Unit =
+    def handleQuery(args: (Option[EmailAddress], Option[Wallet], Either[String, AbstractQuery])): Unit =
         args match {
             case (Some(sender), Some(wallet), Right(query)) =>
                 replier.sendMail(AddressUtilities.pixToTxt(sender), wallet, handleQuery(sender, wallet, query))
@@ -85,22 +81,27 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
             case _ =>
         }
 
-    def handleQuery(sender: Address, wallet: Wallet, query: AbstractQuery): String = query match {
+    def handleQuery(sender: EmailAddress, wallet: Wallet, query: AbstractQuery): String = query match {
         case RegisterRequest() => register(sender)
         case BalanceRequest() => getBalance(wallet)
         case AddressRequest() => getAddress(wallet)
         case SendMoneyText(address, amount) =>
-            sendMoney(wallet, new BitcoinURI(BitcoinURI.convertToBitcoinURI(address, amount, "", "")))
-            s"Sent ${amount.toFriendlyString} to $address"
+            sendMoney(wallet, address, amount)
         case SendMoneyContinuation(amount) => "Amount text continuation not yet implemented"
-        case SendMoneyContinuationUsd(amount) => "Amount text continuation not yet implemented"
+        case SendMoneyContinuationUsd(amountCents) =>
+            val amount = paymentProvider.convertUsdToBtc(amountCents)
+            handleQuery(sender, wallet, SendMoneyContinuation(amount))
         case SendMoneyTextUsd(address, amountCents) =>
             val amount = paymentProvider.convertUsdToBtc(amountCents)
             handleQuery(sender, wallet, SendMoneyText(address, amount))
         case SendMoneyImage(image) =>
             processQrCode(image) match {
-                case Right(requestUri) =>
-                    sendMoney(wallet, requestUri)
+                case Right(requestUri) => (requestUri.getAddress, requestUri.getAmount) match {
+                    case (address, null) =>
+                        "Amount text continuation not yet implemented"
+                    case (address, amount) =>
+                        sendMoney(wallet, requestUri.getAddress, requestUri.getAmount)
+                }
                 case Left(msg) => msg
             }
     }

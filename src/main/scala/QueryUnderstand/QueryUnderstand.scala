@@ -32,9 +32,9 @@ object QueryUnderstand {
             case (None, None, Some(_)) =>
                 Left("I got units but no amount or address. send [amount] [unit] [address]")
             case (Some(_), None, Some(_)) =>
-                Left("I got an amount and units but no address. send [amount] [unit] [address]")
+                Left("I got an address and units but no amount. send [amount] [unit] [address]")
             case (Some(address), None, None) =>
-                Left("I got an address but not an amount for sending. 'send [amount] [unit] [address]'")
+                Left("I got an address but not an amount for sending. send [amount] [unit] [address]")
             case (None, Some(amount), Some(unit)) =>
                 parseAmountUnit(amount, unit) match {
                     case error: String =>
