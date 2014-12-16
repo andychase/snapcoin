@@ -148,8 +148,13 @@ object QueryUnderstand {
 
     def decodeQuery(query: String): Either[String, AbstractQuery] = {
         val trimmedQuery = query.trim()
-        trimmedQuery.indexOf('\n')
-        val splitQuery = query.trim.split(' ').toList
+        val newlineIndex = trimmedQuery.indexOf('\n')
+        val splitQuery =
+            if (newlineIndex > 0)
+                trimmedQuery.substring(0, newlineIndex).split(' ').toList
+            else
+                query.trim.split(' ').toList
+
         splitQuery.length match {
             case _ if splitQuery.head.isEmpty =>
                 Left("Attach image or text 'address', 'balance', or 'send [amount] [unit] [address]'.")
