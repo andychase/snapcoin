@@ -1,13 +1,19 @@
 package PhotoMoney
 
+import java.util.concurrent.Executors
+
 import PaymentProviders.{BlockchainPayments, DebugProvider}
 import Repliers.{DebugReplier, MailgunReplier}
 import akka.actor.ActorSystem
 import spray.http.{FormData, MultipartContent}
 import spray.routing.SimpleRoutingApp
 
+import scala.concurrent.{ExecutionContext, Future}
+
 object Server extends App with SimpleRoutingApp {
     implicit val system = ActorSystem("photomoney-system")
+    implicit val ec = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(10))
+
     System.loadLibrary("zbarjni")
 
     def setup(): PhotoMoneyStoryboard = {
@@ -44,10 +50,10 @@ object Server extends App with SimpleRoutingApp {
         path("msg") {
             post {
                 entity(as[MultipartContent]) { emailData =>
-                    photoMoneyStoryboard.handleQuery(MessageProcessor.processEmail(emailData))
+                    Future(photoMoneyStoryboard.handleQuery(MessageProcessor.processEmail(emailData)))
                     complete("OK")
                 }~ entity(as[FormData]) { emailData =>
-                    photoMoneyStoryboard.handleQuery(MessageProcessor.processEmail(emailData))
+                    Future(photoMoneyStoryboard.handleQuery(MessageProcessor.processEmail(emailData)))
                     complete("OK")
                 }
             }
