@@ -6,15 +6,12 @@ import javax.imageio.ImageIO
 import javax.mail.Address
 import javax.mail.internet.InternetAddress
 
-import PaymentProviders.PaymentProvider
-import QrCodeDecoders.CombinedDecoder
-import Repliers.Replier
-import org.bitcoinj.uri.{BitcoinURI, BitcoinURIParseException}
 import spray.http.HttpData.NonEmpty
 import spray.http.{BodyPart, FormData, MultipartContent}
 
 object MessageProcessor {
     type EmailData = (Option[Wallet], Address, Option[BodyPart])
+        type MailResponse = (Option[Address], Option[Wallet], Either[String, AbstractQuery])
 
     def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] = {
         try {
@@ -50,11 +47,11 @@ object MessageProcessor {
         Map(dataInParts: _*)
     }
 
-    def processEmail(emailData: MultipartContent, paymentProvider: PaymentProvider, replier: Replier): Unit = {
-        processEmail(sortEmail(getDataInPartsMap(emailData)), paymentProvider, replier)
+    def processEmail(emailData: MultipartContent): MailResponse = {
+        processEmailEnvelope(sortEmail(getDataInPartsMap(emailData)))
     }
 
-    def processEmail(emailData: FormData, paymentProvider: PaymentProvider, replier: Replier): Unit = {
+    def processEmail(emailData: FormData): MailResponse = {
         var recipient: Option[Wallet] = None
         var sender: InternetAddress = null
         emailData.fields foreach {
@@ -62,49 +59,37 @@ object MessageProcessor {
             case ("sender", _sender) => sender = new InternetAddress(_sender)
             case _ =>
         }
-        processEmail((recipient, sender, None), paymentProvider, replier)
+        processEmailEnvelope(recipient, sender, None)
     }
 
-    def processEmail(emailData: EmailData, paymentProvider: PaymentProvider, replier: Replier): Unit = {
+    def processEmailEnvelope(emailData: EmailData): MailResponse = {
         emailData match {
+            case (wallet, null, _) =>
+                (None, None, Left("No sender"))
             case (None, sender, _) =>
-                PhotoMoneyStoryboard.register(sender, paymentProvider, replier)
+                (Some(sender), None, Right(RegisterRequest()))
+            case (Some(wallet), sender, maybeAttachment) =>
+                (Some(sender), Some(wallet), processEmailAttachment(maybeAttachment))
+        }
+    }
 
-            case (Some(wallet), sender, Some(attachment)) =>
+    def processEmailAttachment(maybeAttachment: Option[BodyPart]): Either[String, AbstractQuery] =
+        maybeAttachment match {
+
+            case Some(attachment) =>
                 attachment.entity.data match {
                     case data: NonEmpty => dataToBufferedImage(data.toByteArray) match {
                         case Some(imageData) =>
-                            CombinedDecoder.qrCodeImageDecode(imageData) match {
-                                case Some(codeString) => try {
-                                    PhotoMoneyStoryboard.sendMoney(
-                                        sender,
-                                        wallet, new BitcoinURI(codeString),
-                                        paymentProvider, replier
-                                    )
-                                } catch {
-                                    case e: BitcoinURIParseException =>
-                                    // Could not parse qr code
-                                    replier.sendMail(sender, wallet, "That qr code isn't in the right format" +
-                                        "It should be a payment request qr code"
-                                    )
-                                }
-                                case None =>
-                                // Could not decode image
-                                replier.sendMail(sender, wallet, "I couldn't decode that attachment")
-                            }
-
+                            Right(SendMoneyImage(imageData))
                         case None =>
-                        // Did not find attachment
-                        replier.sendMail(sender, wallet, "I could not find any qr code attached")
+                            // Could not
+                            Left("I could not find any qr code attached")
                     }
                     case _ =>
+                        Left("I could not find any qr code attached")
                 }
-            case (Some(wallet), sender, None) =>
+            case None =>
                 // Did not send image
-                replier.sendMail(sender, wallet, "You did not attach a qr code!")
-            case _ =>
-            // No sender can't do anything
-            println("No sender")
+                Left("You did not attach a qr code!")
         }
-    }
 }
