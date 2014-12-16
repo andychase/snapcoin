@@ -31,25 +31,8 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
         }
     }
 
-    def processQrCode(imageData: BufferedImage): Either[String, BitcoinURI] = {
-        CombinedDecoder.qrCodeImageDecode(imageData) match {
-            case Some(codeString) =>
-                Try(new BitcoinURI(codeString)) match {
-                    case Success(uri) => Right(uri)
-                    case Failure(e: BitcoinURIParseException) =>
-                        Left("That qr code isn't in the right format" +
-                            "It should be a payment request qr code")
-                    case _ =>
-                        println("!!! 2")
-                        Left("Error during qr code processing")
-                }
-            case None =>
-                Left("I couldn't decode that attachment")
-        }
-    }
 
-    def sendMoney(sender: Address,
-                  wallet: Wallet,
+    def sendMoney(wallet: Wallet,
                   bitcoinRequest: BitcoinURI): String = {
 
         val paymentAddress = bitcoinRequest.getAddress.toString
@@ -68,6 +51,31 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
         }
     }
 
+    def getBalance(wallet:Wallet): String = {
+        "Your balance is: " + paymentProvider.getBalance(wallet).toFriendlyString
+    }
+
+    def getAddress(wallet:Wallet):String = {
+        "Here's a Bitcoin address for your account: " + paymentProvider.getAddress(wallet)
+    }
+
+    def processQrCode(imageData: BufferedImage): Either[String, BitcoinURI] = {
+        CombinedDecoder.qrCodeImageDecode(imageData) match {
+            case Some(codeString) =>
+                Try(new BitcoinURI(codeString)) match {
+                    case Success(uri) => Right(uri)
+                    case Failure(e: BitcoinURIParseException) =>
+                        Left("That qr code isn't in the right format" +
+                            "It should be a payment request qr code")
+                    case _ =>
+                        println("!!! 2")
+                        Left("Error during qr code processing")
+                }
+            case None =>
+                Left("I couldn't decode that attachment")
+        }
+    }
+
     def handleQuery(args: (Option[Address], Option[Wallet], Either[String, AbstractQuery])): Unit =
         args match {
             case (Some(sender), Some(wallet), Right(query)) =>
@@ -79,18 +87,20 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
 
     def handleQuery(sender: Address, wallet: Wallet, query: AbstractQuery): String = query match {
         case RegisterRequest() => register(sender)
-        case BalanceRequest() => "Balance request not yet implemented"
-        case AddressRequest() => "Address request not yet implemented"
+        case BalanceRequest() => getBalance(wallet)
+        case AddressRequest() => getAddress(wallet)
         case SendMoneyText(address, amount) =>
-            new BitcoinURI(BitcoinURI.convertToBitcoinURI(address, amount, "", ""))
+            sendMoney(wallet, new BitcoinURI(BitcoinURI.convertToBitcoinURI(address, amount, "", "")))
             s"Sent ${amount.toFriendlyString} to $address"
         case SendMoneyContinuation(amount) => "Amount text continuation not yet implemented"
         case SendMoneyContinuationUsd(amount) => "Amount text continuation not yet implemented"
-        case SendMoneyTextUsd(address, amountCents) => "Send money usd not yet implemented"
+        case SendMoneyTextUsd(address, amountCents) =>
+            val amount = paymentProvider.convertUsdToBtc(amountCents)
+            handleQuery(sender, wallet, SendMoneyText(address, amount))
         case SendMoneyImage(image) =>
             processQrCode(image) match {
                 case Right(requestUri) =>
-                    sendMoney(sender, wallet, requestUri)
+                    sendMoney(wallet, requestUri)
                 case Left(msg) => msg
             }
     }
