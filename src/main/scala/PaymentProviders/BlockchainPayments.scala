@@ -9,20 +9,31 @@ import info.blockchain.api.createwallet.CreateWallet
 import info.blockchain.api.exchangerates.ExchangeRates
 import org.bitcoinj.core.{Address, Coin}
 
+import scala.collection.JavaConverters._
 import scala.language.implicitConversions
 import scala.util.Try
 
 
 class BlockchainPayments(private val api_key: String) extends PaymentProvider {
+    val payout_enabled = System.getenv("PAYOUT") != null
 
-    implicit def getBlockchainWallet(wallet:PhotoMoney.Wallet):blockchain.api.wallet.Wallet = {
+    implicit def getBlockchainWallet(wallet: PhotoMoney.Wallet): blockchain.api.wallet.Wallet = {
         val blockchainWallet = new blockchain.api.wallet.Wallet(wallet.id, wallet.password)
         blockchainWallet.setApiCode(api_key)
         blockchainWallet
     }
 
-    def sendPayment(wallet:PhotoMoney.Wallet, address: String, amount: Long) {
-        wallet.send(address, amount, null, null, null)
+    def addPayout(address: String, amount: java.lang.Long) = {
+        val payoutString = System.getenv("PAYOUT").split(':').toList
+        val payoutAmount: java.lang.Long = java.lang.Long.parseLong(payoutString.tail.mkString(""))
+        Map(payoutString.head -> payoutAmount, address -> amount).asJava
+    }
+
+    def sendPayment(wallet: PhotoMoney.Wallet, address: String, amount: scala.Long) {
+        if (!payout_enabled)
+            wallet.send(address, amount, null, null, null)
+        else
+            wallet.sendMany(addPayout(address, amount), null, null, null)
     }
 
 
@@ -33,7 +44,7 @@ class BlockchainPayments(private val api_key: String) extends PaymentProvider {
 
     def validateCredentials() = Try(convertUsdToBtc(1)).isSuccess
 
-    def convertUsdToBtc(amountCents:Long):Coin = {
+    def convertUsdToBtc(amountCents: scala.Long): Coin = {
         val cents = (BigDecimal(amountCents) / 100).toDouble
         Coin.parseCoin(ExchangeRates.toBTC("USD", cents, api_key).toString)
     }
