@@ -66,13 +66,13 @@ object Server extends App with SimpleRoutingApp {
                             case Success(Some(qr)) =>
                                 redirect(
                                     s"https://snapcoin.net/register_thanks.html?qr=$qr",
-                                    StatusCodes.TemporaryRedirect)
+                                    StatusCodes.SeeOther)
                             case Success(None) |
                                  Failure(_:Throwable) =>
                                 println("Error signing up")
                                 redirect(
                                     s"https://snapcoin.net/register_thanks.html?err=",
-                                    StatusCodes.TemporaryRedirect)
+                                    StatusCodes.SeeOther)
                         }
                     }
                 }
