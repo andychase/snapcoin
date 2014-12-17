@@ -25,8 +25,7 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
             case Success((wallet, bitcoinAddress)) =>
                 // Send welcome
                 replier.sendMail(sender, wallet,
-                    s"Hello! Your Bitcoin address is $bitcoinAddress. Fill this then spend by" +
-                        " replying to this message with payment request qr codes. -Snapcoin.net")
+                    s"Snapcoin.net! SAVE THIS CONTACT. Address: $bitcoinAddress. Fill this then reply with qr codes to spend.")
                 Some(bitcoinAddress)
             case Failure(e: Throwable) =>
                 println(e.getStackTraceString)
@@ -102,6 +101,8 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
 
     def handleQuery(sender: EmailAddress, wallet: Wallet, query: AbstractQuery): String = query match {
         case RegisterRequest() => ""
+        case HelpRequest() =>
+            "Snapcoin.net! Commands: [balance]/[address]/send [amount] [unit] [address]. Or send a QR Code!"
         case BalanceRequest() => getBalance(wallet)
         case AddressRequest() => getAddress(wallet)
         case SendMoneyText(address, amount) =>

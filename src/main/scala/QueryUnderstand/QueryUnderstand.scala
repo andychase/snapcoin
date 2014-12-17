@@ -141,6 +141,7 @@ object QueryUnderstand {
     }
 
     def decodeSingleCommandQuery(command: String): Either[String, AbstractQuery] = command match {
+        case "?" | "help" => Right(HelpRequest())
         case "address" | "addr" => Right(AddressRequest())
         case "balance" | "bal" => Right(BalanceRequest())
         case "register" => Right(RegisterRequest())

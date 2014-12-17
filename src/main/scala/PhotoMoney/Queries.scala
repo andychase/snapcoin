@@ -7,6 +7,7 @@ import org.bitcoinj.core.{Address, Coin}
 abstract class AbstractQuery
 
 case class RegisterRequest() extends AbstractQuery
+case class HelpRequest() extends AbstractQuery
 case class BalanceRequest() extends AbstractQuery
 case class AddressRequest() extends AbstractQuery
 case class SendMoneyText(address:Address, amount:Coin) extends AbstractQuery
