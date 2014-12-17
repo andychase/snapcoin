@@ -6,9 +6,14 @@ title: "Snapcoin: Thanks for registering!"
 Thanks!
 =======
 
-You should be getting a text from your secret address soon.
+<i class="fa fa-exclamation-triangle"></i>
+**Use this service at your own risk.** If you loose your snapcoin.net
+account address you loose access to your funds.
+{:.warning}
 
-Here is an address associated with your account to send phones do:
+You should be getting a text from your snapcoin.net account address soon. Save this address to your contact list!
+
+Here is a Bitcoin address associated with your account to send funds to:
 
 <div style="width: 100%;">
 <div style="margin: 0 auto; padding-top: 20px; width: 400px; height: 200px; background-color: white; border: 1px solid #ff00e2; text-align: center;">

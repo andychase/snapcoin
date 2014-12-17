@@ -55,8 +55,8 @@ Information not kept
 --------------------
 
 * Your phone number or carrier.
-* Your credentials (or recipient address).
-* Any information that would enable us to spend your money
+* Your snapcoin.net account address.
+* Any information that would enable us to spend your money.
 
 Services used
 -------------
