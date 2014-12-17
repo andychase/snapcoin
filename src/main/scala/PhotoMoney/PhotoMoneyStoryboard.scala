@@ -5,9 +5,11 @@ import java.awt.image.BufferedImage
 import PaymentProviders.PaymentProvider
 import QrCodeDecoders.CombinedDecoder
 import Repliers.Replier
+import com.google.i18n.phonenumbers.PhoneNumberUtil
 import info.blockchain.api.APIException
 import org.bitcoinj.core.Coin
 import org.bitcoinj.uri.{BitcoinURI, BitcoinURIParseException}
+import spray.http.FormData
 
 import scala.util.{Failure, Success, Try}
 
@@ -15,22 +17,39 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
     type BitcoinAddress = org.bitcoinj.core.Address
     type EmailAddress = javax.mail.Address
 
-    def register(sender: EmailAddress): String = {
+
+    def register(sender: EmailAddress): Option[String] = {
         val walletPassword = Wallet.generatePassword()
         // Create Bitcoin wallet
         Try(paymentProvider.createWallet(walletPassword)) match {
             case Success((wallet, bitcoinAddress)) =>
                 // Send welcome
-                s"Hello! Your Bitcoin address is $bitcoinAddress. Fill this then spend by" +
-                    " replying to this message with payment request qr codes. -Snapcoin.net"
-            case Failure(e: Exception) =>
+                replier.sendMail(sender, wallet,
+                    s"Hello! Your Bitcoin address is $bitcoinAddress. Fill this then spend by" +
+                        " replying to this message with payment request qr codes. -Snapcoin.net")
+                Some(bitcoinAddress)
+            case Failure(e: Throwable) =>
                 println(e.getStackTraceString)
-                s"Error during user registration: ${e.getMessage}"
-            case _ =>
-                println("!! 1")
-                s"Error during user registration."
-
+                None
         }
+    }
+
+    def registerForm(formData: FormData): Option[String] = {
+        var phoneNumberMaybe: Option[String] = None
+        var carrierMaybe: Option[String] = None
+        formData.fields foreach {
+            case ("phone_number", _phoneNumber) => phoneNumberMaybe = Some(_phoneNumber)
+            case ("carrier", _carrier) => carrierMaybe = Some(_carrier)
+            case _ =>
+        }
+
+        for (phoneNumberString <- phoneNumberMaybe;
+             carrier <- carrierMaybe;
+             phoneNumber <- Try(PhoneNumberUtil.getInstance().parse(phoneNumberString, "US")).toOption;
+             emailAddress <- AddressUtilities.numberToEmail(phoneNumber, carrier);
+             bitcoinAddress <- register(emailAddress))
+            return Some(bitcoinAddress)
+        None
     }
 
     def sendMoney(wallet: Wallet, address: BitcoinAddress, amount: Coin): String = {
@@ -39,10 +58,8 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
                 s"Sent ${amount.toFriendlyString} to $address"
             case Failure(e: APIException) =>
                 s"Problem sending payment: ${e.getMessage}"
-            case Failure(e: Exception) =>
-                println(e.getStackTraceString)
-                s"Problem sending payment"
-            case _ =>
+            case Failure(e: Throwable) =>
+                println(e.getStackTrace)
                 s"Problem sending payment"
         }
     }
@@ -78,11 +95,13 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
                 replier.sendMail(AddressUtilities.pixToTxt(sender), wallet, handleQuery(sender, wallet, query))
             case (Some(sender), Some(wallet), Left(errorMessage)) =>
                 replier.sendMail(AddressUtilities.pixToTxt(sender), wallet, errorMessage)
+            case (Some(sender), None, Right(RegisterRequest())) =>
+                register(sender)
             case _ =>
         }
 
     def handleQuery(sender: EmailAddress, wallet: Wallet, query: AbstractQuery): String = query match {
-        case RegisterRequest() => register(sender)
+        case RegisterRequest() => ""
         case BalanceRequest() => getBalance(wallet)
         case AddressRequest() => getAddress(wallet)
         case SendMoneyText(address, amount) =>

@@ -8,7 +8,7 @@ trait PaymentProvider {
 
     def validateCredentials(): Boolean
 
-    def createWallet(walletPassword: String): (String, String)
+    def createWallet(walletPassword: String): (Wallet, String)
 
     def getBalance(wallet:Wallet):Coin
 

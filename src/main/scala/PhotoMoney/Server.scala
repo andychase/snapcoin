@@ -5,10 +5,11 @@ import java.util.concurrent.Executors
 import PaymentProviders.{BlockchainPayments, DebugProvider}
 import Repliers.{DebugReplier, MailgunReplier}
 import akka.actor.ActorSystem
-import spray.http.{FormData, MultipartContent}
+import spray.http.{StatusCodes, FormData, MultipartContent}
 import spray.routing.SimpleRoutingApp
 
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object Server extends App with SimpleRoutingApp {
     implicit val system = ActorSystem("photomoney-system")
@@ -52,11 +53,29 @@ object Server extends App with SimpleRoutingApp {
                 entity(as[MultipartContent]) { emailData =>
                     Future(photoMoneyStoryboard.handleQuery(MessageProcessor.processEmail(emailData)))
                     complete("OK")
-                }~ entity(as[FormData]) { emailData =>
+                } ~ entity(as[FormData]) { emailData =>
                     Future(photoMoneyStoryboard.handleQuery(MessageProcessor.processEmail(emailData)))
                     complete("OK")
                 }
             }
-        }
+        } ~
+            path("register") {
+                post {
+                    entity(as[FormData]) { formData =>
+                        onComplete(Future(photoMoneyStoryboard.registerForm(formData))) {
+                            case Success(Some(qr)) =>
+                                redirect(
+                                    s"https://snapcoin.net/register_thanks.html?qr=$qr",
+                                    StatusCodes.TemporaryRedirect)
+                            case Success(None) |
+                                 Failure(_:Throwable) =>
+                                println("Error signing up")
+                                redirect(
+                                    s"https://snapcoin.net/register_thanks.html?err=",
+                                    StatusCodes.TemporaryRedirect)
+                        }
+                    }
+                }
+            }
     }
 }

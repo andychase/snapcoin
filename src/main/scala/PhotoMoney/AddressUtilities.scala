@@ -30,9 +30,10 @@ object AddressUtilities {
 
     def pixToTxt(address: Address) = splitAndMap(address, pixToTxtMapping)
 
-    def numberToPix(phone: PhoneNumber, carrier: String): Option[String] =
+    def numberToEmail(phone: PhoneNumber, carrier: String): Option[Address] =
         carrierToTxtMapping.get(carrier) match {
-            case Some(carrierTxtAddress) => Some(phone.getNationalNumber.toString + "@" + carrierTxtAddress)
+            case Some(carrierTxtAddress) =>
+                Some(new InternetAddress(phone.getNationalNumber.toString + "@" + carrierTxtAddress))
             case None => None
         }
 

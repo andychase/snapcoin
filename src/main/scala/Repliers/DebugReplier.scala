@@ -11,7 +11,7 @@ class DebugReplier extends Replier {
             s"""
               | --------------
               | To: $to
-              | From: ${wallet.toAddress}
+              | From: ${wallet.id}
               | Text: $text
               | --------------
             """.stripMargin)

@@ -37,9 +37,9 @@ class BlockchainPayments(private val api_key: String) extends PaymentProvider {
     }
 
 
-    def createWallet(walletPassword: String): (String, String) = {
+    def createWallet(walletPassword: String): (PhotoMoney.Wallet, String) = {
         val wallet = CreateWallet.create(walletPassword, api_key)
-        (wallet.getIdentifier, wallet.getAddress)
+        (new PhotoMoney.Wallet(wallet.getIdentifier, walletPassword), wallet.getAddress)
     }
 
     def validateCredentials() = Try(convertUsdToBtc(1)).isSuccess

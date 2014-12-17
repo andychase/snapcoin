@@ -12,9 +12,9 @@ class DebugProvider extends PaymentProvider {
 
     def validateCredentials(): Boolean = true
 
-    def createWallet(walletPassword: String): (String, String) = {
-        print(s"createWallet: $walletPassword")
-        ("FAKEWALLET", walletAddress)
+    def createWallet(walletPassword: String): (Wallet, String) = {
+        println(s"createWallet: $walletPassword")
+        (new Wallet("FAKEWALLET", "1234"), walletAddress)
     }
 
     def getBalance(wallet: Wallet): Coin = Coin.ZERO
