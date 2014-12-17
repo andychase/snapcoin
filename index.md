@@ -1,20 +1,25 @@
 ---
 layout: homepage
 title: "Snapcoin: Bitcoin for feature phones. Take pictures and send to spend."
+register_destination: "https://fathomless-journey-6479.herokuapp.com/register"
+carriers:
+  verizon: Verizon
+  att: AT&amp;T
+  sprint: Sprint
 ---
 
 
-## ▽▽ Be informed when the service starts! ▽▽
+## ▽▽ Register! ▽▽
 {:.register}
 
 <a id="register"></a>
 
-<form action="https://whispering-ocean-2717.herokuapp.com/" method="POST" class="signupform">
-<label>Email:<br/><input type="text" placeholder="email@example.com" name="email" /></label><br>
-<!--<select>
-  <option>Verizon</option>
-  <option>AT&amp;T</option>
-  <option>Sprint</option>
-</select>-->
+<form action="{{ page.register_destination }}" method="POST" class="signupform">
+<label>Phone Number:<br/><input type="text" placeholder="555 123 4567" name="phone_number" /></label><br>
+<select name="carrier">
+{% for carrier in page.carriers %}
+  <option value="{{ carrier[0] }}">{{ carrier[1] }}</option>
+{% endfor %}
+</select>
 <button type="submit">Submit</button>
 </form>
