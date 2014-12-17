@@ -3,14 +3,11 @@ Bitcoin MMS Payments
 
 The purpose of this project is to allow people without smartphones to use Bitcoin easily.
 
+Here is a sample implementation: [Snapcoin.net](Snapcoin.net)
+
 
 Contribution
 ------------
-
-If you like this idea and want to see it continue to develop, consider
-sponsoring me.
-
-> 17GxgkdFnGEmN6pHtr5vbM3MBqYjyfHv9o
 
 Ideas and Code contributions are also welcome, the code is located on
 [Github](https://github.com/asperous/photomoney).
@@ -18,18 +15,10 @@ Ideas and Code contributions are also welcome, the code is located on
 Send me suggestions, issues, and pull requests and I'll gladly review
 them!
 
-Planned Improvements
---------------------
-
--   Limit processing to emails from a certain address
--   Add spending limits
--   Add wallet providers \<- Support Bitcoind
--   Add multi-user support
--   Make a simple service that's likely to be hacked
-
 Versions
 --------
 
+-   *0.9* Started likely-to-be-hacked service
 -   *0.5* Prototype/Proof-of-concept
 
 Licence
