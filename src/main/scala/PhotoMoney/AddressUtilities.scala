@@ -13,7 +13,11 @@ import com.google.i18n.phonenumbers.Phonenumber.PhoneNumber
  */
 object AddressUtilities {
     val carrierToTxtMapping = Map(
-        "verizon" -> "vtext.com"
+        "verizon" -> "vtext.com",
+        "att" -> "txt.att.net",
+        "sprint" -> "messaging.sprintpcs.com",
+        "boost" -> "myboostmobile.com",
+        "tmobile" -> "tmomail.net"
     )
 
     val pixToTxtMapping = Map(
@@ -25,8 +29,6 @@ object AddressUtilities {
     )
 
     val txtToPixMapping = pixToTxtMapping.map(_.swap)
-
-    def txtToPix(address: Address) = splitAndMap(address, txtToPixMapping)
 
     def pixToTxt(address: Address) = splitAndMap(address, pixToTxtMapping)
 
