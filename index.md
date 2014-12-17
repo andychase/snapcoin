@@ -4,8 +4,8 @@ title: "Snapcoin: Bitcoin for feature phones. Take pictures and send to spend."
 register_destination: "https://fathomless-journey-6479.herokuapp.com/register"
 carriers:
   verizon: Verizon
-  att: AT&amp;T
-  sprint: Sprint
+#  att: AT&amp;T
+#  sprint: Sprint
 ---
 
 
