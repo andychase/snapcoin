@@ -71,6 +71,18 @@ object MessageProcessor {
         emailData match {
             case (wallet, null, _, _) =>
                 (None, None, Left("No sender"))
+            case (Some(wallet), sender, Some(text), Some(attachment)) if !text.trim.isEmpty =>
+                processEmailAttachment(attachment) match {
+                    case Right(SendMoneyImage(imageData)) =>
+                        QueryUnderstand.decodeQuery(text) match {
+                            case Right(SendMoneyContinuation(amount)) =>
+                                (Some(sender), Some(wallet), Right(SendMoneyImageWithAmount(amount, imageData)))
+                            case _ =>
+                                (Some(sender), Some(wallet), Right(SendMoneyImage(imageData)))
+                        }
+                    case Left(s:String) =>
+                        (Some(sender), Some(wallet), Left(s))
+                }
             case (Some(wallet), sender, _, Some(attachment)) =>
                 (Some(sender), Some(wallet), processEmailAttachment(attachment))
             case (Some(wallet), sender, Some(text), None) if !text.trim.isEmpty =>
@@ -80,7 +92,7 @@ object MessageProcessor {
         }
     }
 
-    def processEmailAttachment(attachment: BodyPart): Either[String, AbstractQuery] =
+    def processEmailAttachment(attachment: BodyPart): Either[String, SendMoneyImage] =
         attachment.entity.data match {
             case data: NonEmpty => dataToBufferedImage(data.toByteArray) match {
                 case Some(imageData) =>

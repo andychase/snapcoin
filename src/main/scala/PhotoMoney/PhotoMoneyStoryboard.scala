@@ -134,5 +134,10 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier, s
                 }
                 case Left(msg) => msg
             }
+        case SendMoneyImageWithAmount(amount, image) => processQrCode(image) match {
+            case Right(requestUri) =>
+                sendMoney(wallet, requestUri.getAddress, amount)
+            case Left(msg) => msg
+        }
     }
 }

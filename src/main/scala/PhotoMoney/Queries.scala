@@ -15,3 +15,4 @@ case class SendMoneyContinuation(amount:Coin) extends AbstractQuery
 case class SendMoneyContinuationUsd(amountCents:Long) extends AbstractQuery
 case class SendMoneyTextUsd(address:Address, amountCents:Long) extends AbstractQuery
 case class SendMoneyImage(image:BufferedImage) extends AbstractQuery
+case class SendMoneyImageWithAmount(amount:Coin, image:BufferedImage) extends AbstractQuery
