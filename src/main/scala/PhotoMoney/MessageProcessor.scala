@@ -75,6 +75,8 @@ object MessageProcessor {
                 (Some(sender), Some(wallet), processEmailAttachment(attachment))
             case (Some(wallet), sender, Some(text), None) if !text.trim.isEmpty =>
                 (Some(sender), Some(wallet), QueryUnderstand.decodeQuery(text))
+            case (None, sender, Some(text), None) =>
+                (Some(sender), None, Right(RegisterRequest()))
         }
     }
 

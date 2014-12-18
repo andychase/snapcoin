@@ -13,7 +13,7 @@ import scala.util.matching.Regex
 
 object QueryUnderstand {
     val oneSpaceCommands =
-        "addr" :: "address" :: "balance" :: "bal" :: "help" :: "?" :: Nil
+        "addr" :: "address" :: "balance" :: "bal" :: "help" :: Nil
 
     val bitcoinAddressRegex = new Regex("[13][a-km-zA-HJ-NP-Z0-9]{26,33}")
     val numberRegex = new Regex("[0-9]+([\\.|,][0-9]*)*")
@@ -162,7 +162,11 @@ object QueryUnderstand {
                 Left("Attach image or text 'address', 'balance', or 'send [amount] [unit] [address]'.")
             case 1 =>
                 val cmd = splitQuery.head.toLowerCase
-                if (oneSpaceCommands.contains(cmd))
+                if (cmd == "register")
+                    Right(RegisterRequest())
+                else if (cmd == "?")
+                    Right(HelpRequest())
+                else if (oneSpaceCommands.contains(cmd))
                     decodeSingleCommandQuery(cmd)
                 else
                     decodeSingleCommandQuery(getClosest(cmd))
