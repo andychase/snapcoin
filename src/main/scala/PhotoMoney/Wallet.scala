@@ -9,7 +9,7 @@ import org.apache.commons.codec.binary.{Base32, Hex}
 class Wallet(val id: String, val password: String) {
     def toAddress: Address = {
         val compressedAddress = Wallet.compress(id, password)
-        new InternetAddress(compressedAddress+"@p.snapcoin.net")
+        new InternetAddress(compressedAddress+"@snc.io")
     }
 }
 
