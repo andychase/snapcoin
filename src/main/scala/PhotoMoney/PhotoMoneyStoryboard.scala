@@ -26,7 +26,9 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier, s
             case Success((wallet, bitcoinAddress)) =>
                 // Send welcome
                 replier.sendMail(sender, wallet,
-                    s"Snapcoin.net! SAVE THIS CONTACT. Address: $bitcoinAddress. Fill this then reply with qr codes to spend.")
+                    s"snapcoin.net! Save & send replies to ${wallet.toAddress}")
+                replier.sendMail(sender, wallet,
+                    s"Send a QR Code or text help for cmds. Your address: $bitcoinAddress")
                 Some(bitcoinAddress)
             case Failure(e: Throwable) =>
                 println(e.getStackTraceString)
