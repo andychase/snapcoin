@@ -7,8 +7,8 @@ Thanks!
 =======
 
 <i class="fa fa-exclamation-triangle"></i>
-**Use this service at your own risk.** If you loose your snapcoin.net
-account address you loose access to your funds.
+**Use this service at your own risk.** If you lose your snapcoin.net
+account address you lose access to your funds.
 {:.warning}
 
 You should be getting a text from your snapcoin.net account address soon. Save this address to your contact list!

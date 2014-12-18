@@ -18,4 +18,5 @@ We poll Bitcoin prices to keep our
 fee under 1 cent at all times.
 
 This small fee pays for the cost
-of running the service.
+of running the service. Currently the
+fee is being donated to the [Internet Archive](https://archive.org).
