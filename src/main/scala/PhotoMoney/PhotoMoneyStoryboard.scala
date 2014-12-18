@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage
 import PaymentProviders.PaymentProvider
 import QrCodeDecoders.CombinedDecoder
 import Repliers.Replier
+import TemporaryStorage.TemporaryStorage
 import com.google.i18n.phonenumbers.PhoneNumberUtil
 import info.blockchain.api.APIException
 import org.bitcoinj.core.Coin
@@ -13,7 +14,7 @@ import spray.http.FormData
 
 import scala.util.{Failure, Success, Try}
 
-class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
+class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier, storage: TemporaryStorage) {
     type BitcoinAddress = org.bitcoinj.core.Address
     type EmailAddress = javax.mail.Address
 
@@ -107,7 +108,13 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
         case AddressRequest() => getAddress(wallet)
         case SendMoneyText(address, amount) =>
             sendMoney(wallet, address, amount)
-        case SendMoneyContinuation(amount) => "Amount text continuation not yet implemented"
+        case SendMoneyContinuation(amount) => storage.getAddress(wallet) match {
+            case Some(address) =>
+                handleQuery(sender, wallet, SendMoneyText(address, amount))
+            case None =>
+                "You sent [amount] [unit] but no address." +
+                    "If you sent a qr code with an address more then 5 minutes ago it may have expired."
+        }
         case SendMoneyContinuationUsd(amountCents) =>
             val amount = paymentProvider.convertUsdToBtc(amountCents)
             handleQuery(sender, wallet, SendMoneyContinuation(amount))
@@ -118,7 +125,8 @@ class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier) {
             processQrCode(image) match {
                 case Right(requestUri) => (requestUri.getAddress, requestUri.getAmount) match {
                     case (address, null) =>
-                        "Amount text continuation not yet implemented"
+                        storage.putAddress(wallet, address)
+                        s"How much do you want to send to $address ? Reply with: [amount] [unit]."
                     case (address, amount) =>
                         sendMoney(wallet, requestUri.getAddress, requestUri.getAmount)
                 }

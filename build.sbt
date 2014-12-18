@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
     "com.google.zxing" % "javase" % "3.1.0",
     "net.databinder.dispatch" %% "dispatch-core" % "0.11.2",
     "org.specs2" % "specs2_2.10" % "2.3.7"  % "test",
-    "org.slf4j" % "slf4j-simple" % "1.6.4"
+    "org.slf4j" % "slf4j-simple" % "1.6.4",
+    "redis.clients" % "jedis" % "2.6.1"
 )
 
 

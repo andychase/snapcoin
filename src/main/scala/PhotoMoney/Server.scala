@@ -1,9 +1,11 @@
 package PhotoMoney
 
+import java.net.URI
 import java.util.concurrent.Executors
 
 import PaymentProviders.{BlockchainPayments, DebugProvider}
 import Repliers.{DebugReplier, MailgunReplier}
+import TemporaryStorage.{RedisStorage, DebugStorage}
 import akka.actor.ActorSystem
 import spray.http.{StatusCodes, FormData, MultipartContent}
 import spray.routing.SimpleRoutingApp
@@ -19,7 +21,7 @@ object Server extends App with SimpleRoutingApp {
 
     def setup(): PhotoMoneyStoryboard = {
         var offlineMode = false
-        val (blockchain_api, email_post_url, email_user, email_password) = {
+        val (blockchain_api, email_post_url, email_user, email_password, redis_url) = {
             val e = { key: String => System.getenv(key: String) match {
                 case s: String => s
                 case null =>
@@ -28,11 +30,15 @@ object Server extends App with SimpleRoutingApp {
                     ""
             }
             }
-            (e("BLOCKCHAIN_API_KEY"), e("MAILGUN_POST_URL"), e("MAILGUN_POST_USER"), e("MAILGUN_API_KEY"))
+            (e("BLOCKCHAIN_API_KEY"),
+                e("MAILGUN_POST_URL"),
+                e("MAILGUN_POST_USER"),
+                e("MAILGUN_API_KEY"),
+                new URI(e("REDISCLOUD_URL")))
         }
         if (offlineMode) {
             println("Missing environment variables running in offline mode")
-            new PhotoMoneyStoryboard(new DebugProvider(), new DebugReplier())
+            new PhotoMoneyStoryboard(new DebugProvider(), new DebugReplier(), new DebugStorage())
         } else {
             val _paymentProvider = new BlockchainPayments(blockchain_api)
             _paymentProvider.validateCredentials()
@@ -40,7 +46,11 @@ object Server extends App with SimpleRoutingApp {
             if (!_replier.validateCredentials()) {
                 throw new Exception("Can't validate replier")
             }
-            new PhotoMoneyStoryboard(_paymentProvider, _replier)
+            val _storage = new RedisStorage(redis_url)
+            if (!_storage.validateCredentials()) {
+                throw new Exception("Can't validate storage")
+            }
+            new PhotoMoneyStoryboard(_paymentProvider, _replier, _storage)
         }
     }
 
@@ -68,7 +78,7 @@ object Server extends App with SimpleRoutingApp {
                                     s"https://snapcoin.net/register_thanks.html?qr=$qr",
                                     StatusCodes.SeeOther)
                             case Success(None) |
-                                 Failure(_:Throwable) =>
+                                 Failure(_: Throwable) =>
                                 println("Error signing up")
                                 redirect(
                                     s"https://snapcoin.net/register_thanks.html?err=",
