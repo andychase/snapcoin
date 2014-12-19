@@ -38,19 +38,6 @@ Adding Funds
     * Coinbase -- Bitcion in 3-5 with a Bank account
 3. Send Bitcoin to the address you signed up with.
 
-Adding Funds - from a private key
----------------------------------
-
-<i class="fa fa-exclamation-triangle"></i>
-Remember snapcoin.net is a service for small amounts of money.
-For your security you should only send private keys
-containing spending money and not your life savings.
-{:.warning}
-
-
-1. Snap a picture of your private key qr code
-   and send it to your snapcoin.net account address.
-
 Get Balance
 -----------
 
