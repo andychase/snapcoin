@@ -159,7 +159,7 @@ object QueryUnderstand {
 
         splitQuery.length match {
             case _ if splitQuery.head.isEmpty =>
-                Left("Attach image or text 'address', 'balance', or 'send [amount] [unit] [address]'.")
+                Left("Attach image or text: 'address', 'balance', or 'send [amount] [unit] [address]'.")
             case 1 =>
                 val cmd = splitQuery.head.toLowerCase
                 if (cmd == "register")

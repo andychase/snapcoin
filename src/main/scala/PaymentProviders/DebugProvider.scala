@@ -14,7 +14,7 @@ class DebugProvider extends PaymentProvider {
 
     def createWallet(walletPassword: String): (Wallet, String) = {
         println(s"createWallet: $walletPassword")
-        (new Wallet("FAKEWALLET", "1234"), walletAddress)
+        (new Wallet("FAFEFAFFE1", walletPassword), walletAddress)
     }
 
     def getBalance(wallet: Wallet): Coin = Coin.ZERO

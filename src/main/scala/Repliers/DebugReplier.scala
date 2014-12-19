@@ -5,7 +5,7 @@ import javax.mail.Address
 
 class DebugReplier extends Replier {
     def sendMail(to: Address, from: Address, text: String, img: Option[BufferedImage]): Unit = {
-        print(
+        println(
             s"""
               | --------------
               | To: $to

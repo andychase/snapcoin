@@ -5,103 +5,71 @@ import java.io.ByteArrayInputStream
 import javax.imageio.ImageIO
 import javax.mail.Address
 import javax.mail.internet.InternetAddress
-import spray.http.HttpData.NonEmpty
-import spray.http.{BodyPart, FormData, MultipartContent}
 import QueryUnderstand.QueryUnderstand
+import spray.http.HttpEntity.{Empty, NonEmpty}
+import spray.http._
+
+import scala.util.Try
 
 object MessageProcessor {
-    type EmailData = (Option[Wallet], Address, Option[String], Option[BodyPart])
     type MailResponse = (Option[Address], Option[Wallet], Either[String, AbstractQuery])
 
-    def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] = {
-        try {
-            Option(ImageIO.read(new ByteArrayInputStream(data)))
-        } catch {
-            case e: Exception =>
-                println(s"Exception reading image. ${e.getCause}")
-                None
-        }
-
-    }
-
-    def getAttachmentIfPossible(dataInPartsMap: Map[String, BodyPart]): Option[BodyPart] = {
-        if (dataInPartsMap.contains("attachment-count") &&
-            (dataInPartsMap("attachment-count").entity.data.asString.toInt > 0))
-            Some(dataInPartsMap("attachment-1"))
-        else None
-    }
-
-    def sortEmail(dataInPartsMap: Map[String, BodyPart]): EmailData = {
-        val emailHas = dataInPartsMap.contains _
-        val get = dataInPartsMap(_: String).entity.data.asString
-        val getIfPossible = { s: String => if (emailHas(s)) get(s) else ""}
-        val recipient = Wallet.addressToWallet(new InternetAddress(getIfPossible("recipient")))
-
-        (recipient,
-            new InternetAddress(getIfPossible("sender")),
-            Option(getIfPossible("body-plain")),
-            getAttachmentIfPossible(dataInPartsMap))
-    }
-
-    def getDataInPartsMap(emailData: MultipartContent): Map[String, BodyPart] = {
-        val dataInParts = emailData.parts.seq map {
-            emailPart => emailPart.name.get -> emailPart
-        }
-        Map(dataInParts: _*)
-    }
+    def dataToBufferedImage(data: Array[Byte]): Option[BufferedImage] =
+        Try(ImageIO.read(new ByteArrayInputStream(data))).toOption
 
     def processEmail(emailData: MultipartContent): MailResponse = {
-        processEmailEnvelope(sortEmail(getDataInPartsMap(emailData)))
+        var wallet: Option[Wallet] = None
+        var sender: Option[Address] = None
+        var bodyText: String = ""
+        var maybeImage: Option[BufferedImage] = None
+
+        val attachmentPattern = "attachment-([0-9]+)".r
+        val asStr = (_: BodyPart).entity.asString(HttpCharsets.`UTF-8`)
+
+        for {emailPart <- emailData.parts; name <- emailPart.name} (name, emailPart) match {
+            case ("recipient", address) =>
+                wallet = Wallet.addressToWallet(new InternetAddress(asStr(address)))
+            case ("sender", senderStr) =>
+                sender = Try(new InternetAddress(asStr(senderStr))).toOption
+            case ("body-plain", bodyPlain) => bodyText += asStr(bodyPlain)
+            case (attachmentPattern(_), BodyPart(entity, _)) => entity match {
+                case NonEmpty(ContentTypes.`text/plain`, data) =>
+                    bodyText += data.asString(HttpCharsets.`UTF-8`)
+                    bodyText = bodyText.trim
+                case NonEmpty(_, data) =>
+                    maybeImage = dataToBufferedImage(data.toByteArray)
+                case Empty =>
+            }
+            case _ =>
+        }
+
+        val query: Either[String, AbstractQuery] = (bodyText, maybeImage) match {
+            case (text, None) =>
+                QueryUnderstand.decodeQuery(text)
+            case ("", Some(image)) =>
+                Right(SendMoneyImage(image))
+            case (text, Some(image)) =>
+                QueryUnderstand.decodeQuery(text) match {
+                    case Right(SendMoneyContinuation(amount)) =>
+                        Right(SendMoneyImageWithAmount(amount, image))
+                    case _ =>
+                        Right(SendMoneyImage(image))
+                }
+        }
+
+        (sender, wallet, query)
     }
 
     def processEmail(emailData: FormData): MailResponse = {
-        var recipient: Option[Wallet] = None
-        var sender: InternetAddress = null
-        var bodyText: Option[String] = None
+        var wallet: Option[Wallet] = None
+        var sender: Option[Address] = None
+        var bodyText: String = ""
         emailData.fields foreach {
-            case ("recipient", _addr) => recipient = Wallet.addressToWallet(new InternetAddress(_addr))
-            case ("sender", _sender) => sender = new InternetAddress(_sender)
-            case ("body-plain", _body_plain) => bodyText = Some(_body_plain)
+            case ("recipient", address) => wallet = Wallet.addressToWallet(new InternetAddress(address))
+            case ("sender", senderStr) => sender = Try(new InternetAddress(senderStr)).toOption
+            case ("body-plain", bodyPlain) => bodyText = bodyPlain
             case _ =>
         }
-        processEmailEnvelope(recipient, sender, bodyText, None)
+        (sender, wallet, QueryUnderstand.decodeQuery(bodyText))
     }
-
-    def processEmailEnvelope(emailData: EmailData): MailResponse = {
-        emailData match {
-            case (wallet, null, _, _) =>
-                (None, None, Left("No sender"))
-            case (Some(wallet), sender, Some(text), Some(attachment)) if !text.trim.isEmpty =>
-                processEmailAttachment(attachment) match {
-                    case Right(SendMoneyImage(imageData)) =>
-                        QueryUnderstand.decodeQuery(text) match {
-                            case Right(SendMoneyContinuation(amount)) =>
-                                (Some(sender), Some(wallet), Right(SendMoneyImageWithAmount(amount, imageData)))
-                            case _ =>
-                                (Some(sender), Some(wallet), Right(SendMoneyImage(imageData)))
-                        }
-                    case Left(s:String) =>
-                        (Some(sender), Some(wallet), Left(s))
-                }
-            case (Some(wallet), sender, _, Some(attachment)) =>
-                (Some(sender), Some(wallet), processEmailAttachment(attachment))
-            case (Some(wallet), sender, Some(text), None) if !text.trim.isEmpty =>
-                (Some(sender), Some(wallet), QueryUnderstand.decodeQuery(text))
-            case (None, sender, Some(text), None) =>
-                (Some(sender), None, Right(RegisterRequest()))
-        }
-    }
-
-    def processEmailAttachment(attachment: BodyPart): Either[String, SendMoneyImage] =
-        attachment.entity.data match {
-            case data: NonEmpty => dataToBufferedImage(data.toByteArray) match {
-                case Some(imageData) =>
-                    Right(SendMoneyImage(imageData))
-                case None =>
-                    // Could not
-                    Left("I could not find any qr code attached")
-            }
-            case _ =>
-                Left("I could not find any qr code attached")
-        }
 }
