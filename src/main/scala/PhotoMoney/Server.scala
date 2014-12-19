@@ -19,7 +19,7 @@ object Server extends App with SimpleRoutingApp {
 
     System.loadLibrary("zbarjni")
 
-    def setup(): PhotoMoneyStoryboard = {
+    def setup(): Storyboard = {
         var offlineMode = false
         val (blockchain_api, email_post_url, email_user, email_password, redis_url) = {
             val e = { key: String => System.getenv(key: String) match {
@@ -38,7 +38,7 @@ object Server extends App with SimpleRoutingApp {
         }
         if (offlineMode) {
             println("Missing environment variables running in offline mode")
-            new PhotoMoneyStoryboard(new DebugProvider(), new DebugReplier(), new DebugStorage())
+            new Storyboard(new DebugProvider(), new DebugReplier(), new DebugStorage())
         } else {
             val _paymentProvider = new BlockchainPayments(blockchain_api)
             _paymentProvider.validateCredentials()
@@ -50,7 +50,7 @@ object Server extends App with SimpleRoutingApp {
             if (!_storage.validateCredentials()) {
                 throw new Exception("Can't validate storage")
             }
-            new PhotoMoneyStoryboard(_paymentProvider, _replier, _storage)
+            new Storyboard(_paymentProvider, _replier, _storage)
         }
     }
 

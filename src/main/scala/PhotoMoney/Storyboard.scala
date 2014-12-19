@@ -14,7 +14,7 @@ import spray.http.FormData
 
 import scala.util.{Failure, Success, Try}
 
-class PhotoMoneyStoryboard(paymentProvider: PaymentProvider, replier: Replier, storage: TemporaryStorage) {
+class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: TemporaryStorage) {
     type BitcoinAddress = org.bitcoinj.core.Address
     type EmailAddress = javax.mail.Address
 
