@@ -1,7 +1,3 @@
-
-
-packageArchetype.java_application
-
 name := "photomoney"
 
 resolvers +=

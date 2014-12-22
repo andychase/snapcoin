@@ -1,0 +1,6 @@
+language: scala
+sudo: false
+notifications:
+  email: false
+scala:
+   - 2.10.4

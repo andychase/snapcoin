@@ -1,6 +1,8 @@
 Bitcoin MMS Payments
 ====================
 
+[![Build Status](https://travis-ci.org/andychase/photomoney.png?branch=master)](https://travis-ci.org/andychase/photomoney)
+
 The purpose of this project is to allow people without smartphones to use Bitcoin easily.
 
 Here is a sample implementation: [Snapcoin.net](Snapcoin.net)
