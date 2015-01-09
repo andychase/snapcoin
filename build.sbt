@@ -8,7 +8,7 @@ libraryDependencies ++= Seq(
     "org.apache.commons" % "commons-lang3" % "3.3.2",
     "com.google.zxing" % "core" % "3.1.0",
     "javax.mail" % "mail" % "1.4.7",
-    "info.blockchain" % "api" % "LATEST",
+    "info.blockchain" % "api" % "1.0.3",
     "com.googlecode.libphonenumber" % "libphonenumber" % "7.0",
     "org.bitcoinj" % "bitcoinj-core" % "0.12.2",
     "commons-codec" % "commons-codec" % "1.10",
