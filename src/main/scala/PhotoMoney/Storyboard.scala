@@ -26,8 +26,8 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
             case Success((wallet, bitcoinAddress)) =>
                 // Send welcome
                 replier.sendMail(sender, wallet,
-                    s"Snapcoin.net! Save & send replies: ${wallet.toAddress}." +
-                    s"Text help for cmds. Addr: $bitcoinAddress")
+                    s"Snapcoin! SAVE/send replies: ${wallet.toAddress}. " +
+                    s"'help' for cmds. Addr: $bitcoinAddress")
                 Some(bitcoinAddress)
             case Failure(e: Throwable) =>
                 println(e.getStackTraceString)
