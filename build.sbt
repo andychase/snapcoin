@@ -1,5 +1,7 @@
 name := "photomoney"
 
+packageArchetype.java_application
+
 resolvers +=
     "Blockchain Snapshots" at "https://raw.githubusercontent.com/blockchain/api-v1-client-java/mvn-repo/"
 
