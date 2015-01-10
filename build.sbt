@@ -1,5 +1,7 @@
 name := "photomoney"
 
+scalaVersion := "2.10.4"
+
 packageArchetype.java_application
 
 resolvers +=
