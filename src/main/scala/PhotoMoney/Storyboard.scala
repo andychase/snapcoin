@@ -25,9 +25,7 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
         Try(paymentProvider.createWallet(walletPassword)) match {
             case Success((wallet, bitcoinAddress)) =>
                 // Send welcome
-                replier.sendMail(sender, wallet,
-                    s"Snapcoin! SAVE/send replies: ${wallet.toAddress}. " +
-                    s"'help' for cmds. Addr: $bitcoinAddress")
+                replier.sendMail(sender, wallet, Words.welcome(wallet, bitcoinAddress))
                 Some(bitcoinAddress)
             case Failure(e: Throwable) =>
                 println(e.getStackTraceString)
@@ -56,21 +54,21 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
     def sendMoney(wallet: Wallet, address: BitcoinAddress, amount: Coin): String = {
         Try(paymentProvider.sendPayment(wallet, address.toString, amount.getValue)) match {
             case Success(_) =>
-                s"Sent ${amount.toFriendlyString} to $address"
+                Words.sendMoneySuccess(amount, address)
             case Failure(e: APIException) =>
-                s"Problem sending payment: ${e.getMessage}"
+                Words.sendMoneyApiFailure(e)
             case Failure(e: Throwable) =>
                 println(e.getStackTrace)
-                s"Problem sending payment"
+                Words.sendMoneyOtherFailure()
         }
     }
 
     def getBalance(wallet: Wallet): String = {
-        "Your balance is: " + paymentProvider.getBalance(wallet).toFriendlyString
+        Words.balance(paymentProvider.getBalance(wallet).toFriendlyString)
     }
 
     def getAddress(wallet: Wallet): String = {
-        "Here's a Bitcoin address for your account: " + paymentProvider.getAddress(wallet)
+         Words.address(paymentProvider.getAddress(wallet))
     }
 
     def processQrCode(imageData: BufferedImage): Either[String, BitcoinURI] = {
@@ -79,14 +77,12 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
                 Try(new BitcoinURI(codeString)) match {
                     case Success(uri) => Right(uri)
                     case Failure(e: BitcoinURIParseException) =>
-                        Left("That qr code isn't in the right format" +
-                            "It should be a payment request qr code")
+                        Left(Words.wrongFormat())
                     case _ =>
-                        println("!!! 2")
-                        Left("Error during qr code processing")
+                        Left(Words.errorProcessing())
                 }
             case None =>
-                Left("I couldn't decode that attachment")
+                Left(Words.errorDecodingAttachment())
         }
     }
 
@@ -104,7 +100,7 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
     def handleQuery(sender: EmailAddress, wallet: Wallet, query: AbstractQuery): String = query match {
         case RegisterRequest() => ""
         case HelpRequest() =>
-            "Snapcoin.net! Commands: [balance]/[address]/send [amount] [unit] [address]. Or send a QR Code!"
+            Words.help()
         case BalanceRequest() => getBalance(wallet)
         case AddressRequest() => getAddress(wallet)
         case SendMoneyText(address, amount) =>
@@ -113,8 +109,7 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
             case Some(address) =>
                 handleQuery(sender, wallet, SendMoneyText(address, amount))
             case None =>
-                "You sent [amount] [unit] but no address." +
-                    "If you sent a qr code with an address more then 5 minutes ago it may have expired."
+                Words.none()
         }
         case SendMoneyContinuationUsd(amountCents) =>
             val amount = paymentProvider.convertUsdToBtc(amountCents)
@@ -127,7 +122,7 @@ class Storyboard(paymentProvider: PaymentProvider, replier: Replier, storage: Te
                 case Right(requestUri) => (requestUri.getAddress, requestUri.getAmount) match {
                     case (address, null) =>
                         storage.putAddress(wallet, address)
-                        s"How much do you want to send to $address ? Reply with: [amount] [unit]."
+                        Words.howMuchToSpend(address)
                     case (address, amount) =>
                         sendMoney(wallet, requestUri.getAddress, requestUri.getAmount)
                 }
