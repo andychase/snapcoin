@@ -8,9 +8,7 @@
     font-size: 24pt;
   }
   height: 443px;
-  background: url('/resources/bkg.jpg') no-repeat;
-  background-position-y: top;
-  background-position-x: center;
+  background-color: #eee;
   position: relative;
   top: -111px;
   margin: 0 auto;
@@ -19,7 +17,6 @@
 
 .phoneinfo {
   position: relative;
-
   left: 7px;
 }
 
@@ -63,7 +60,7 @@ h2.register {
   width: 200px;
   text-align: center;
   padding: 10px 0;
-  border: 1px solid $brand-color;;
+  border: 1px solid $brand-color;
   border-radius: 14px;
 }
 
@@ -73,12 +70,23 @@ h2.register {
 
 #home_text {
   font-size: 18pt;
-  background-color: $brand-color;
   color: white;
   display: inline-block;
 }
 
 #home_text_link {
+  background: url("/resources/logo.png") no-repeat;
+  width: 120px;
+  height: 53px;
+  display: inline-block;
+  background-size: cover;
+  color: white;
+  font-weight: 600;
+  overflow: initial;
+  position: relative;
+  bottom: 25px;
+  border-bottom: 1px rgba(0, 0, 0, 0) dashed;
+
   color: white;
   font-weight: 600;
   padding: 5px;
@@ -88,7 +96,7 @@ h2.register {
 }
 
 .homepage a {
-  color: rgba(0, 0, 0, 0.50);
+  color: rgba(0, 0, 0, 0.90);
   text-decoration: none;
 
   &:visited {

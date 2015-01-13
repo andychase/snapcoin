@@ -63,13 +63,13 @@ h1, h2, h3, h4, h5, h6 {
  * Links
  */
 a {
-  color: #ff00e2;
+  color: #8cd906;
   text-decoration: none; }
   a:visited {
-    color: #ff00e2; }
+    color: #8cd906; }
   a:hover {
     text-decoration: none;
-    border-bottom: 1px #ff00e2 dashed; }
+    border-bottom: 1px #8cd906 dashed; }
 
 /**
  * Blockquotes
@@ -114,7 +114,8 @@ pre {
   margin-right: auto;
   margin-left: auto;
   padding-right: 30px;
-  padding-left: 30px; }
+  padding-left: 30px;
+  padding-top: 20px; }
   @media screen and (max-width: 800px) {
     .wrapper {
       max-width: -webkit-calc(800px - (30px));
@@ -256,9 +257,6 @@ pre {
 /**
  * Page content
  */
-.page-content {
-  padding: 30px 0; }
-
 .page-heading {
   font-size: 20px; }
 
@@ -312,9 +310,7 @@ pre {
 #maincard {
   display: block;
   height: 443px;
-  background: url("/resources/bkg.jpg") no-repeat;
-  background-position-y: top;
-  background-position-x: center;
+  background-color: #eee;
   position: relative;
   top: -111px;
   margin: 0 auto;
@@ -362,7 +358,7 @@ h2.register {
   width: 200px;
   text-align: center;
   padding: 10px 0;
-  border: 1px solid #ff00e2;
+  border: 1px solid #8cd906;
   border-radius: 14px; }
 
 .signupform input {
@@ -370,11 +366,21 @@ h2.register {
 
 #home_text {
   font-size: 18pt;
-  background-color: #ff00e2;
   color: white;
   display: inline-block; }
 
 #home_text_link {
+  background: url("/resources/logo.png") no-repeat;
+  width: 120px;
+  height: 53px;
+  display: inline-block;
+  background-size: cover;
+  color: white;
+  font-weight: 600;
+  overflow: initial;
+  position: relative;
+  bottom: 25px;
+  border-bottom: 1px rgba(0, 0, 0, 0) dashed;
   color: white;
   font-weight: 600;
   padding: 5px; }
@@ -382,7 +388,7 @@ h2.register {
     color: white; }
 
 .homepage a {
-  color: rgba(0, 0, 0, 0.5);
+  color: rgba(0, 0, 0, 0.9);
   text-decoration: none; }
   .homepage a:visited {
     color: rgba(0, 0, 0, 0.5); }
@@ -415,6 +421,8 @@ h2.register {
 
 .nav ul li {
   margin-left: 20px; }
+  .nav ul li a {
+    color: rgba(0, 0, 0, 0.9); }
 
 .current {
-  border-bottom: 1px solid #ff00e2; }
+  border-bottom: 1px solid #8cd906; }
