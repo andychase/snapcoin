@@ -48,4 +48,4 @@ License
 This website, source code, and all related materials are
 released under the [AGPL](https://github.com/andychase/photomoney/blob/master/LICENSE)
 
-Commits before [baf32f2] released under the [MIT License](https://github.com/andychase/photomoney/tree/0db8877f0248d20eb7a12c53e5d90d943729acd0#License).
+Commits before commit baf32f2 are released under the [MIT License](https://github.com/andychase/photomoney/tree/0db8877f0248d20eb7a12c53e5d90d943729acd0#License).
