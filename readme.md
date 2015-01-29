@@ -1,7 +1,7 @@
 Bitcoin MMS Payments
 ====================
 
-[![Build Status](https://travis-ci.org/andychase/snapcoin.png?branch=master)](https://travis-ci.org/andychase/photomoney)
+[![Build Status](https://travis-ci.org/andychase/snapcoin.png?branch=master)](https://travis-ci.org/andychase/snapcoin)
 
 The purpose of this project is to allow people without smartphones to use Bitcoin easily.
 
@@ -12,7 +12,7 @@ Contribution
 ------------
 
 Ideas and Code contributions are also welcome, the code is located on
-[Github](https://github.com/asperous/photomoney).
+[Github](https://github.com/andychase/snapcoin).
 
 Send me suggestions, issues, and pull requests and I'll gladly review
 them!
