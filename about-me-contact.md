@@ -10,8 +10,6 @@ About
 
 Snapcoin.net is a service originally created and currently operated by [Andy Chase](https://andychase.me).
 
-It is managed by a team of passionate individuals on [Assembly](https://assembly.com/snapcoin-net).
-
 Logo by [Jason Beaton](https://dribbble.com/parkerrr).
 
 Terms Of Use
