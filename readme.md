@@ -1,7 +1,7 @@
 Bitcoin MMS Payments
 ====================
 
-[![Build Status](https://travis-ci.org/andychase/snapcoin.png?branch=master)](https://travis-ci.org/andychase/snapcoin)
+[![Build Status](https://travis-ci.org/andychase/snapcoin.svg?branch=master)](https://travis-ci.org/andychase/snapcoin)
 
 The purpose of this project is to allow people without smartphones to use Bitcoin easily.
 
