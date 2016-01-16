@@ -5,7 +5,7 @@ Bitcoin MMS Payments
 
 The purpose of this project is to allow people without smartphones to use Bitcoin easily.
 
-Here is a sample implementation: [Snapcoin.net](https://Snapcoin.net)
+Here is a sample website: [Snapcoin](https://andychase.me/snapcoin)
 
 
 Contribution
@@ -20,6 +20,7 @@ them!
 Versions
 --------
 
+-   *0.99* Closed likely-to-be-hacked service and converted website to sample
 -   *0.9* Started likely-to-be-hacked service
 -   *0.5* Prototype/Proof-of-concept
 
