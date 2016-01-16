@@ -14,14 +14,10 @@ carriers:
 <div style="background-color: white; border: 1px solid black; padding: 10px; margin: 10px; border-radius: 2px;">
 
 
-  <p>Snapcoin is shutting down due to lack of interest, lack of funding, and lack of security.</p>
-  
-<p>I'm excited about the future of Bitcoin, but I don't think the way forward is through feature phone technology.  It's not easy getting around the cost of using sms/mms and find a way to provide Bitcoin services in a secure manner during the startup phase. To protect users' money and interests in the best way possible, I've decided to suspend the service.</p>
-  
-  <p>If you had funds in Snapcoin, please email me and I can help you recover the funds (email in the "About section").</p>
-  
-<p>Best wishes! -Andy<p>
+  <p><b>This website shows a demo of a Snapcoin service website. You can't register or use this demo.</b></p>
 
+  <p>See the source code here: <a href="https://github.com/andychase/snapcoin">andychase/snapcoin</a> to set up your own Snapcoin service!
+  </p>
 
 
 </div>

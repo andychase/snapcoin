@@ -1,6 +1,7 @@
 # Site settings
 title: Snapcoin
-email: snapcoinmail@gmail.com
+baseurl: /snapcoin
+email: (Put your email here)
 description: >
   Bringing Bitcoin to feature phones, one snap at a time.
 

@@ -8,7 +8,7 @@ on_about_me_contact: current
 About
 =====
 
-Snapcoin.net is a service originally created and currently operated by [Andy Chase](https://andychase.me).
+Snapcoin.net is a service originally created by [Andy Chase](https://andychase.me).
 
 Logo by [Jason Beaton](https://dribbble.com/parkerrr).
 
@@ -27,9 +27,9 @@ THE SERVICE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIE
 Contact
 =======
 
-For Snapcoin.net related questions or issues contact: <snapcoinmail@gmail.com>.
+For Snapcoin.net related questions or issues contact: (Put your email here).
 
-You can also suggest ideas on uservoice: <https://snapcoin.uservoice.com>.
+You can also suggest ideas on uservoice: (Put the uservoice address here).
 
 To say hi to Andy or for other inquires: <theandychase@gmail.com>.
 
@@ -38,12 +38,10 @@ Source Code
 
 This service is open source!
 
-The source is located on github: [andychase/photomoney](https://github.com/andychase/photomoney).
+The source is located on github: [andychase/snapcoin](https://github.com/andychase/snapcoin).
 
 License
 =======
 
 This website, source code, and all related materials are
-released under the [AGPL](https://github.com/andychase/photomoney/blob/master/LICENSE)
-
-Commits before commit baf32f2 are released under the [MIT License](https://github.com/andychase/photomoney/tree/0db8877f0248d20eb7a12c53e5d90d943729acd0#License).
+released under the [MIT License](https://github.com/andychase/snapcoin/blob/master/LICENSE)
